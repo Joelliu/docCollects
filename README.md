@@ -9,6 +9,7 @@ A collection of documentation
 
 - oA_api.json
   - openATTIC的openAPI格式的api文档（使用stoplight.io
+  - https://kristol07.docs.stoplight.io/api-reference/oA-api
 
 - oA_dev.md
   - openATTIC开发环境的搭建文档
