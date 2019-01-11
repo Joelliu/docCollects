@@ -51908,5 +51908,5 @@
     }
   ],
   "responses": {},
-  "basePath": "/api"
+  "basePath": "http://localhost:4200/api"
 }
