@@ -1,0 +1,82 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: Ceph dashboard APIs
+  description: "This OAS2 (Swagger 2) file represents Ceph dashboard APIs that lives at http://#mgr-host#:#port#. (ex, http://localhost:4200)\n\n\t\nFor my case, the mgr host resides in a Ceph cluster running in docker container. You can generate the same environment by refering to [ceph-dev-docker](https://github.com/ricardoasmarques/ceph-dev-docker), or using directly [this docker image](https://hub.docker.com/r/kristol07/ceph-dev-env) (You still need to compile yourself).\n\n\t\n### Dashboard Login (default)\n\t\n- username: admin\n- password: admin"
+  contact:
+    name: SUSE
+    url: 'https://www.suse.com/'
+  license:
+    name: GPL-3.0
+  termsOfService: 'https://www.suse.com/company/legal/#terms'
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions: {}
+parameters:
+  Accept:
+    in: header
+    type: string
+    default: 'application/json, text/plain, */*'
+    name: Accept
+  Origin:
+    name: Origin
+    in: header
+    type: string
+  User-Agent:
+    name: User-Agent
+    in: header
+    type: string
+  Content-Type:
+    name: Content-Type
+    in: header
+    type: string
+    default: application/json
+  Referer:
+    name: Referer
+    in: header
+    type: string
+  Accept-Encoding:
+    name: Accept-Encoding
+    in: header
+    type: string
+    default: 'gzip, deflate, br'
+  Accept-Language:
+    name: Accept-Language
+    in: header
+    type: string
+    default: 'en-US,en;q=0.9'
+  Authorization:
+    in: header
+    type: string
+    description: 首次登录时返回的token，作为后续API请求的安全验证方法。
+    name: Authorization
+tags:
+  - name: auth
+  - name: monitor
+  - name: host
+  - name: osd
+  - name: cluster
+  - name: rgw
+  - name: cephfs
+  - name: performance
+  - name: logs
+  - name: pool
+  - name: snapshot
+    description: |-
+      Snapshot knowledge (快照相关知识)：
+      [Snapshots](http://docs.ceph.com/docs/mimic/rbd/rbd-snapshot/)
+  - name: rbd
+    description: >-
+      Command reference: 
+
+      [rbd – manage rados block device (RBD)
+      images](http://docs.ceph.com/docs/mimic/man/8/rbd/)
+  - name: iscsi
+  - name: user
+  - name: role
+responses: {}
+basePath: 'http://localhost:4200/api'
