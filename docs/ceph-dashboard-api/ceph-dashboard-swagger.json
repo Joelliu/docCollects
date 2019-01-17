@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0",
     "title": "Ceph dashboard APIs",
-    "description": "This OAS2 (Swagger 2) file represents Ceph dashboard APIs that lives at http://#mgr-host#:#port#. (ex, http://localhost:4200)\n\n\t\nFor my case, the mgr host resides in a Ceph cluster running in docker container. You can generate the same environment by refering to [ceph-dev-docker](https://github.com/ricardoasmarques/ceph-dev-docker), or using directly [this docker image](https://hub.docker.com/r/kristol07/ceph-dev-env) (You still need to compile yourself).\n\n\t\n### Dashboard Login (default)\n\t\n- username: admin\n- password: admin",
+    "description": "This OAS2 (Swagger 2) file represents Ceph dashboard APIs that lives at http://#mgr-host#:#port#. (ex, http://localhost:4200)\n\n\t\nFor my case, the mgr host resides in a Ceph cluster running in docker container. You can generate the same environment by refering to [ceph-dev-docker](https://github.com/ricardoasmarques/ceph-dev-docker), or using directly [this docker image](https://hub.docker.com/r/kristol07/ceph-dev-env) (You still need to compile yourself).\n\n\n### API documentation in different formats\n\nIf you are not very satisfied with the views of this API documentation, you can also generate yours with [this json file](https://raw.githubusercontent.com/kristol07/docCollects/master/docs/ceph-dashboard-api/ceph-dashboard-swagger.json). It's Ceph dashboard API in swagger format. You can then render it with different tools, such as [ReDoc](https://rebilly.github.io/ReDoc/), [MrinDoc](https://mrin9.github.io/OpenAPI-Viewer/#/load/https%3A%2F%2Fapi.apis.guru%2Fv2%2Fspecs%2Fbitbucket.org%2F2.0%2Fswagger.json), [Swagger UI](http://petstore.swagger.io/).\n\n\t\n### Dashboard Login (default)\n\t\n- username: admin\n- password: admin",
     "contact": {
       "name": "SUSE",
       "url": "https://www.suse.com/"
@@ -51806,7 +51806,10 @@
             "$ref": "#/parameters/Authorization"
           }
         ],
-        "description": "List infos of all erasure code profiles.\n\nReference: \n[Erasure code profiles](http://docs.ceph.com/docs/mimic/rados/operations/erasure-code-profile/)"
+        "description": "List infos of all erasure code profiles.\n\nReference: \n[Erasure code profiles](http://docs.ceph.com/docs/mimic/rados/operations/erasure-code-profile/)",
+        "tags": [
+          "others"
+        ]
       }
     }
   },
@@ -51905,8 +51908,12 @@
     },
     {
       "name": "role"
+    },
+    {
+      "name": "others"
     }
   ],
   "responses": {},
-  "basePath": "http://localhost:4200/api"
+  "basePath": "/api",
+  "host": "127.0.0.1:4200"
 }
