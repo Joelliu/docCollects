@@ -15,6 +15,8 @@ A collection of documentation
 
 - /vimwiki-backup: vimwiki 备份
 
+- /suse-intern-tutorials: 实习中的一些文档翻译
+
 - Chinese-Font-Setting-for-Visual-Studio-Code.md
   - 解决 linux 系统下如 visual code 不能正确渲染 markdown 下的中文字体的问题
 
