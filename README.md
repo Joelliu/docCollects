@@ -29,5 +29,3 @@ A collection of documentation
 
 - ssh-Connection-Setting.md
   - 如何正确使用 ssh 连接服务（github,bitbucket
-
-- rust-learning.wiki: vimwiki 格式下的 Rust 语言学习资源/计划
