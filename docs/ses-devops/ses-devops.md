@@ -2830,7 +2830,7 @@ root@minion > ceph osd pool create newpool 4096 4096 erasure default
 
 您现在有两个池，即装满数据的原始副本池“testpool”和新的空纠删码池“newpool”：
 
-![迁移前的存储池](../images/ses-devops/cache-move-1.png)
+![迁移前的存储池](../../images/ses-devops/cache-move-1.png)
 
 2. 设置快速缓存层，并将副本池“testpool”配置为快速缓存池：
 
@@ -2841,7 +2841,7 @@ root@minion > ceph osd cache-mode testpool forward
 
 自此之后，所有新对象都将创建在新池中：
 
-![快速缓存层设置](../images/ses-devops/cache-move-2.png)
+![快速缓存层设置](../../images/ses-devops/cache-move-2.png)
 
 3. 强制快速缓存池将所有对象移到新池中：
 
@@ -2849,7 +2849,7 @@ root@minion > ceph osd cache-mode testpool forward
 root@minion > rados -p testpool cache-flush-evict-all
 ```
 
-![数据清理](../images/ses-devops/cache-move-3.png)
+![数据清理](../../images/ses-devops/cache-move-3.png)
 
 4. 将所有客户端切换到新池。您需要指定一个覆盖层，以便在旧池中搜索对象，直到所有数据都已清理到新的纠删码池。
 
@@ -2859,7 +2859,7 @@ root@minion > ceph osd tier set-overlay newpool testpool
 
 有了覆盖层，所有操作都会转到旧的副本池“testpool”：
 
-![设置覆盖层](../images/ses-devops/cache-move-4.png)
+![设置覆盖层](../../images/ses-devops/cache-move-4.png)
 
 现在，您可以将所有客户端都切换为访问新池中的对象。
 
@@ -2870,7 +2870,7 @@ root@minion > ceph osd tier remove-overlay newpool
 root@minion > ceph osd tier remove newpool testpool
 ```
 
-![迁移完成](../images/ses-devops/cache-move-5.png)
+![迁移完成](../../images/ses-devops/cache-move-5.png)
 
 #### 存储池快照
 

@@ -211,7 +211,7 @@ SCHED_SCHED_DEADLINE min/max priority	: 0/0
 
 以下是针对不同性能配置文件中上述三个值的比较示例。
 
-![表1 内核调优 - 对比](../images/suse-intern-tutorials/表1内核调优对比_1540198993_28750.png)
+![表1 内核调优 - 对比](../../images/suse-intern-tutorials/表1内核调优对比_1540198993_28750.png)
 
 ### 3.3 内存管理调优
 
@@ -235,7 +235,7 @@ dirty_bytes 是 dirty_ratio 的对立变量，一次只能指定其中一个。�
 
 以下是针对不同性能配置文件中上述三个值的比较示例。
 
-![表2 内存管理调优 - 比较](../images/suse-intern-tutorials/表2内存管理调优比较_1540645820_8627.png)
+![表2 内存管理调优 - 比较](../../images/suse-intern-tutorials/表2内存管理调优比较_1540645820_8627.png)
 
 
 ### 3.4 网络堆栈调优
@@ -296,7 +296,7 @@ Linux内核允许修改影响网络堆栈的几个参数。 从内核2.6.17开�
 
 以上表格是不同性能配置文件中上述参数的可能配置的比较。
 
-![表3 网络堆栈调优 - 比较](../images/suse-intern-tutorials/表3网络栈调优比较_1540646188_26732.png)
+![表3 网络堆栈调优 - 比较](../../images/suse-intern-tutorials/表3网络栈调优比较_1540646188_26732.png)
 
 ## 4.0 IRQ设置
 
