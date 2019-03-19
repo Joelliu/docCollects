@@ -1,0 +1,50 @@
+= All Tech Collections =
+
+== Tools/Softwares ==
+
+* rsshub
+* rixcloud
+* terminal markdown viewer
+    - pandoc + w3m/lyns
+* minserve: https://github.com/svenstaro/miniserve -> cli tool to serve files and dirs quickly
+* vimwiki
+* typeform vs microsoft form vs google form
+* [[seafile-docs]]
+* *ConyEdit*: https://www.conyedit.com/tutorial -> cross-editor tool
+* writeathon: https://www.writeathon.cn/ -> web editor
+* greendns: https://pypi.org/project/greendns/
+* safeincloud: https://safe-in-cloud.com/en/ -> password manager | 1password
+* Taskwarrior: https://taskwarrior.org/ -> task manager
+* IPFS: https://ipfs.io/ -> distributed web
+* wn.run : https://wn.run/zh/
+* bujo-thinking: https://github.com/Kinneyzhang/bujo-thinking
+* RegExr: https://regexr.com/
+* VirScan: http://virscan.org/
+* Instant RSS Search: http://ctrlq.org/rss/
+* asd 商品历史价格查询: http://asd-price.com/
+* Online Mindmaps: https://www.mindmaps.app/
+* Linux command: https://wangchujiang.com/linux-command/
+* dotfile: https://dotfiles.github.io/
+* imagemagick: http://www.imagemagick.org/index.php
+* keepassxc, keeweb
+* radare2
+* fail2ban
+
+
+== Articles ==
+
+* ABC(AI, BigData, CloudComputing) concept: https://www.cnblogs.com/popsuper1982/p/8505203.html
+* Windows cmd: https://www.digitalcitizen.life/command-prompt-how-use-basic-commands
+
+
+== Websites ==
+
+* LinkedInfo: https://www.linkedinfo.co/
+* Hacker news: https://news.ycombinator.com/
+* Slashdot: https://slashdot.org/
+
+
+== Sources ==
+
+* Microsoft docs: https://docs.microsoft.com/en-us/
+* libgen.io: http://libgen.io/

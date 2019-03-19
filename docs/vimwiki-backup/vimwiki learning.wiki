@@ -1,0 +1,204 @@
+= vimwiki doc =
+
+Site: https://github.com/vimwiki/vimwiki/blob/master/doc/vimwiki.txt
+
+= Contents =
+    - [[#vimwiki doc|vimwiki doc]]
+        - [[#vimwiki doc#1. Mappings|1. Mappings]]
+            - [[#vimwiki doc#1. Mappings#Gloabl mapping|Gloabl mapping]]
+            - [[#vimwiki doc#1. Mappings#Local mapping|Local mapping]]
+                - [[#vimwiki doc#1. Mappings#Local mapping#wiki|wiki]]
+                - [[#vimwiki doc#1. Mappings#Local mapping#to do|to do]]
+                - [[#vimwiki doc#1. Mappings#Local mapping#table|table]]
+            - [[#vimwiki doc#1. Mappings#Text objects|Text objects]]
+        - [[#vimwiki doc#2. Commands|2. Commands]]
+        - [[#vimwiki doc#3. Wiki syntax|3. Wiki syntax]]
+                - [[#vimwiki doc#3. Wiki syntax#Typefaces|Typefaces]]
+                - [[#vimwiki doc#3. Wiki syntax#Links|Links]]
+                - [[#vimwiki doc#3. Wiki syntax#Headers|Headers]]
+                - [[#vimwiki doc#3. Wiki syntax#Lists|Lists]]
+                - [[#vimwiki doc#3. Wiki syntax#Tables|Tables]]
+                - [[#vimwiki doc#3. Wiki syntax#Preformatted text|Preformatted text]]
+                - [[#vimwiki doc#3. Wiki syntax#Mathematical formulas|Mathematical formulas]]
+                - [[#vimwiki doc#3. Wiki syntax#Blockquotes|Blockquotes]]
+                - [[#vimwiki doc#3. Wiki syntax#Comments|Comments]]
+                - [[#vimwiki doc#3. Wiki syntax#Horizontal line|Horizontal line]]
+
+== 1. Mappings ==
+
+=== Gloabl mapping ===
+
+* *g:vimwiki_list*
+
+* `[count]<leader>ww` -> Open index file of the [count]'s wiki
+    - /vimwiki/index.wiki
+* `[count]<leader>wi` -> Open diary index file of the [count]'s wiki
+    - /vimwiki/diary/diary.wiki
+* `<leader>w<leader>i` -> Update diary section (delete old, insert new)
+    - only work from the diary index
+* `[count]<leader>w<leader>w` -> Open diary wiki-file for today of the [count]'s wiki
+    - /vimwiki/diary/<today>.wiki
+* `[count]<leader>w<leader>m` -> Open diary wiki-file for tomorrow of the [count]'s wiki
+* `[count]<leader>w<leader>y` -> Open diary wiki-file for yesterday of the [count]'s wiki
+
+=== Local mapping ===
+
+==== wiki ====
+
+* `<leader>wh` -> convert current wiki to html
+* `<leader>whh` -> convert and open in webbrowser
+
+* `<CR> (Enter)` -> follow/create wiki link
+* `<Backspace>` -> go back to previously visisted wiki page
+* `<Tab>` -> Find next link in the current page  <--> `<S-Tab>`
+
+* `<leader>wd` -> delete wiki page you are in
+* `<leader>wr` -> rename wiki page you are in
+
+* `=` -> add header level
+* `-` -> remvoe header level
+
+* `[[` -> go to the previous header
+* `]]` -> go to the next header
+* `[=` -> go to previous header which has the same level
+* `]=` -> go to next header which has the same level
+
+* `+` -> create and/or decorate (add missing descriptions) links
+
+==== to do ====
+
+* `<Ctrl-Space>` -> toggle checkbox of a list item on/off
+* `gl<Space>` -> remove checkbox
+
+* `gln` -> increase the 'done' status: `[ ]` -> `[.]` -> `[o]` -> ...
+* `glp` -> decrease the 'done' status
+
+* `gll` -> increase the level of a list item
+* `glh` -> decrease the level of a list item
+
+* `gl#`, `gl-`, `gla`, `glA`, `gli`, `glI` -> make a list item out of normal line | change `*[ ]` to `#[ ]`/`-[ ]`/etc.
+* `glx` -> toggle checkbox of a list item disabled/off
+
+==== table ====
+
+* `gqq`/`gww` -> format table
+* `<Alt-Left>` -> move current table column to the left
+* `<Alt-Right>` -> move current table column to the right
+
+=== Text objects ===
+
+* `ah` -> header + it's content
+* `ih` -> content under a header
+* `aH` -> header + all subheaders + all contents
+
+command examples:
+- `cih` -> change the content under the current header
+- `daH` -> delete an entire header plus all its subheaders
+
+* `a\` -> a cell in a table
+* `ac` -> a column in a table
+
+* `al` -> a list item plus its children
+* `il` -> a single list item
+
+== 2. Commands ==
+
+* `:VimwikiIndex` -> open index file of the current file
+* `:VimwikiTabIndex` -> open index file of the current in a new tab
+
+* `:VimwikiDiaryIndex` -> open diary index file of the current wiki
+* `VimwikiMakeDiaryNote` -> open diary wiki-file for today of the current wiki
+
+* `:VimwikiTable cols rows` -> create a table with the given cols and rows (default: 5 cols and 2 rows)
+
+* `:VimwikiTOC` -> create/update the table of contents for current wiki file ( Keyword: `= Contents =` )
+
+* `:VimwikiCheckLinks` -> results will be shown in a quickfix window
+
+== 3. Wiki syntax ==
+
+==== Typefaces ====
+
+- `*bold text*`
+- `_italic text_`
+- `~~strikeout text~~`
+- ``code (no syntax) text``
+- `super^script^`
+- `sub,,script,,`
+
+==== Links ====
+
+* Plain link: `\[[This is a link\]]`
+* With description: `\[[This is a link source|Description of the link\]]`
+* Subdirectory: `\[[../index\]]` / `\[[/index\]]`
+* Interwiki: `\[[wiki<num>:This is a link\]]`
+* Diary: `\[[diary:2012-03-05\]]`
+* Anchors: `\[[Todo list#Tomorrow|Tasks for tomorrow\]]`
+* External files: `\[[file:/home/somebody/a/b/c/music.mp3\]]`
+* Wiki-Include Links (included in html output) : `{{file:../../images/vimwiki_logo.png}}`
+
+==== Headers ====
+
+Center headers in HTML by placing spaces before the first '='.
+
+==== Lists ====
+
+- List items can span multiple lines
+{{{
+* Item 1
+  Item 1 continued line.
+* Item 2
+  - sub item 1
+    sub item 1 continued line
+  - sub item 2
+  - etc.
+  Continuation of Item 2
+}}}
+
+- Definition lists
+{{{
+Term 1:: Definition 1
+Term 2::
+:: Definition 2
+:: Definition 3
+}}}
+
+==== Tables ====
+
+check `vimwiki-tables`
+
+==== Preformatted text ====
+
+Use `{{{` and `}}}` to define a block of preformatted text
+
+{{{class="brush: python"
+def hellp(world):
+    for x in range(10):
+        print("Hello {0} number {1}".format(world, x))
+}}}
+
+check `vimwiki-option-nested_syntaxes` and `vimwiki-option-automatic_nested_syntaxes`
+
+==== Mathematical formulas ====
+
+* Display engine: [MathJax](http://www.mathjax.org/)
+* Inline math: enclosed by single dollar signs `$`
+* Block display: `{{$` <---> `$}}`
+* Block environment: specific Latex environments, like `align`
+{{{
+{{$%environment%
+...
+$}}
+}}}
+
+==== Blockquotes ====
+
+Text starts with 4 or more spaces is a blockquote.
+
+==== Comments ====
+
+A line starts with %% is a comment.
+
+==== Horizontal line ====
+
+4 or more dashes at the start of the line is a horizontal line.

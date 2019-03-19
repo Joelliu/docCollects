@@ -13,6 +13,8 @@ A collection of documentation
   - ceph-dashboard-postman-collection-v2.json
     - 使用 postman 收集的 ceph dashboard api
 
+- /vimwiki-backup: vimwiki 备份
+
 - Chinese-Font-Setting-for-Visual-Studio-Code.md
   - 解决 linux 系统下如 visual code 不能正确渲染 markdown 下的中文字体的问题
 

@@ -1,0 +1,83 @@
+
+= VI commands =
+
+* go to begining of line: `0`
+* go to begining of line with content: `^`
+* go to end of line: `$`
+
+* add content in the begining of line: `I`
+* add content in the end of line: `A`
+* add content just after the cursor: `a`
+
+* find word under the current cursor: `*` `#`(reverse)
+
+* go to matching parentheses: `%`
+
+* word movement: `w`, `e`, `b`
+* motion: `ap` -> a paragraph; `aw` -> a word
+
+* repeat operation: `.`
+
+* undo: `u`
+* redo undo: `ctrl-r`
+
+* multiline edit:
+  1. Ctrl-v -> visual block
+  2. <command> (uppercase)
+  3. <Esc>
+
+* open *HELP* doc: `:help` and then use `ctrl+]` to open the topic chosen
+
+* copy and paste between files: `:edit <another-file>` and use `y` and `p` for copying and pasting
+
+* go to specific line:  `:n` / `nG` / `<line-num> shift-G`
+
+* uppercase: `<visual mode> gU`
+* lowercase: `<visual mode> gu`
+* toggle case(change between uppercase and lowercase): `<visual mode> ~`
+* the three(gU, gu, ~) are operators!
+
+* auto-complete: `<under insert mode> ctrl-n/ctrl-p`
+
+* indent: <under visual (block) mode: C-v> use '>' / '<'
+* auto-indent: C-v + '='
+* the three(>, <, =) are operators!
+
+* split window: `:split`, then use `C-w + <udlr>' to move among windows
+* `:vsplit` is usually what you want
+
+* C-r + C-w: copy current word under cursor to command line
+* C-r + C-w: for a <cword>; C-r + C-a: for a <cWord>
+
+* `[I]`: show lines with matching word under cursor
+
+* `:%s/search_for_this/replace_with_this/`
+* `:%s/search_for_this/replace_with_this/c` : confirm each replace
+* `%` means for the whole article
+
+* `ctrl-w`: erase word
+* `ctrl-u`: erase line (under insert mode / command line)
+
+* `ctrl-a`: add 1 to the number or alphabetic character at or after the cursor
+* `ctrl-a(visual mode)`: add 1 to ... in the highlighted text
+* `g ctrl-a(visual mode)`: add 1 to ....; if multiple lines, incrementing result
+* `ctrl-x` for substract
+
+* when operator command is invoked in duplicate, it acts upon the current line.
+* `yy` -> copy current line; `>>` -> indent current line
+
+* use `gc` operator for comments (vim-commentary plugin)
+
+* ctrl-o (under insert mode) : insert normal mode -> fire a command and back to insert mode
+    - Use cases: `<Ctrl-o>zz` -> `zz` is for making current line in the middle of screen
+
+* `J`: join current line and next line together
+* `K`: looks up man page for the word under current cursor
+
+* `<Ctrl-r>0` : paste yanked text under insert mode ('0' is register here.)
+* `<Ctrl-r>=` : do math for us using expression register('=')
+
+* `:%s/pattern//gn` => count number of occurrence of patterns
+* `:%s/pattern//n` => count number of lines of patterns
+
+* 'setlocal paste' mode : `,pp`

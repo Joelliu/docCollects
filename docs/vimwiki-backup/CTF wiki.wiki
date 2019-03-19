@@ -1,0 +1,52 @@
+= CTF WIKI =
+
+* https://ctf-wiki.github.io/ctf-wiki/
+
+== CRYPTO ==
+
+=== Learning resources ===
+
+* https://cryptopals.com
+* 深入浅出密码学
+
+=== Articles ===
+
+* CTF中那些脑洞大开的编码和加密: https://www.tuicool.com/articles/2E3INnm
+
+=== Summary ===
+
+* 当铺密码: 汉字笔画数目
+* ASCII码
+* 凯撒密码: 每个字母偏移相同位数
+* QWE码: 键盘顺序
+* 栅栏编码: 分组，然后首字母提出，次字母提出，依次。
+* 摩斯码
+
+
+== REVERSE ENGINEERING ==
+
+* Introduction to reverse engineering and exploitation of binary programs: http://csec.it/events/phd-course-binaries/
+
+=== Tools ===
+
+* Radare2
+    - R2 book: https://radare.gitbooks.io/radare2book/content/
+    - Radare2 explorations: https://monosource.gitbooks.io/radare2-explorations/content/
+
+=== To read ===
+
+* An Intro to x86_64 Reverse Engineering: https://leotindall.com/tutorial/an-intro-to-x86_64-reverse-engineering/
+* https://unix.stackexchange.com/questions/418354/understanding-what-a-linux-binary-is-doing
+
+
+== MISC ==
+
+=== articles ===
+
+* 从CTF中学USB流量捕获与解析: https://www.anquanke.com/post/id/85218
+
+
+
+== WEB SECURITY ==
+
+* http://wiki.jeary.org/#!index.md

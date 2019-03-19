@@ -1,0 +1,59 @@
+= Knowledge Base =
+
+== Computer techs ==
+
+* [X] Filesystem Hierarchy Standard: http://www.pathname.com/fhs/
+* [ ] Memory management: https://www.memorymanagement.org/index.html
+* [ ] Let's build a simple interpreter: https://ruslanspivak.com/lsbasi-part1/
+* [ ] The art of computer programming: https://www-cs-faculty.stanford.edu/~knuth/taocp.html
+* [ ] 骑着企鹅采树莓: http://www.cnblogs.com/vamei/archive/2012/10/10/2718229.html
+* [ ] 协议森林: https://read.douban.com/column/1788114/
+
+
+== Programming Language ==
+
+* [[Rust Learning]]
+    - [.] The Rust Programming Language Book
+* Python
+    - [ ] Fluent Python
+    - [ ] Efficient Python
+    - [ ] Building APIs with Django and Django Rest Framework
+    - [ ] pythontips: http://book.pythontips.com/en/latest/index.html
+* Vimscipt/Vim
+    - [[useful vim commands]]
+    - [.] [[Learn Vimscript the Hard Way]]
+* [.] [[The Linux Command Line]]
+* Go
+* Javascript
+
+
+== Software ==
+
+* Kubernetes
+    - [ ] [[Play with k8s]]
+* Jenkins
+* Ansible/SaltStack
+* Notion app Learning
+* Docker
+* Git
+* radare2
+
+
+== Others ==
+
+* Latex
+    - Overleaf doc: https://www.overleaf.com/learn
+* Deep learning
+    - [ ] ai-start: http://www.ai-start.com/
+    - [ ] Fast AI
+* [ ] Hacker 101
+* [ ] [[CTF wiki]]
+* Distributed systems
+* [X] Markdown syntax
+* [ ] wordpress learning: https://github.com/bestony/EasyWordPressBook
+* [O] [[vimwiki learning]]
+* [ ] Let's build a web server: https://ruslanspivak.com/lsbaws-part1/
+
+=== Articles ===
+
+* Why You Shouldn’t Use “Markdown” for Documentation: http://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/

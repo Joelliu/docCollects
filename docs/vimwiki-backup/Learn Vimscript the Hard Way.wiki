@@ -1,0 +1,48 @@
+= Book: Learn Vimscript the Hard Way =
+
+Site: http://learnvimscriptthehardway.stevelosh.com/
+
+* Trucs
+    - `<nop>`  no operation
+
+* Echoing messages
+    - `:echo  "str"`  →  just display a message
+    - `:echom "str"`  →  save "str" to _messages_
+    - `:messages`  →  display all messages in _messages_
+* Setting options
+    - `:set <name>`  ←→  `:set no<name>`   boolean options
+    - `:set! <name>`   toggling boolean options
+    - `:set <name>?`   checking options
+    - `:set <name>=<value>`   setting options with value (and then use ? to check)
+    - `:set <name> <name>=<value>`   setting multiple option at once
+* Basic/Modal mapping
+    - `:map<key><cmd>`   key: <space>, <c-d>, <esc>
+    - `:nmap`  `:vmap`  `:imap`    map under normal/visual/insert mode
+        - under insert mode,    `:imap <c-d> <esc>ddi`
+        - `:*unmap` for unmapping
+* Strict mapping
+    - *Problem of recursion*   `:nmap dd O<esc>jddk`  →  *'dd' re-explained in <cmd>*
+    - One downside of the `*map` commands is the danger of recursing. Another is that their behavior can change if you install a plugin that maps keys they depend on.
+    - *Nonrecursive Mapping:*  `*map` → `*noremap`       *Use always nonrecursive mapping !!!*
+    - `:nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel`
+* Leaders
+    - `-`, `H`, `L`, `<space>`, `<cr>`, and `<bs>` : rarely used in normal mode → "*prefix*" key
+    - Leader key: `:let mapleader = ","`, then `:nnoremap <leader>d dd`
+    - Local leader key: `:let maplocalleader = "\\"` for certain types of files
+* Editing your vimrc
+    - Quickly open vimrc: `:nnoremap <leader>ev :vsplit $MYVIMRC<cr>`
+    - Qucikly sourcing: `:nnoremap <leader>sv :source $MYVIMRC<cr>`
+* *Abbreviations*
+    - examples: `:iabbrev adn and`  |  `:iabbrev waht what`
+    - abbreviation for any "*non-keyword character*", use `:set iskeyword?` for check keywords
+    - keywords: `iskeyword=@,48-57,_,192-255` (`:help isfname`)
+        - All alphabetic ASCII characters, both upper and lower case, and their accented versions.
+        - Any characters with an ASCII value between 48 and 57 (the digits zero through nine).
+        - underscore character (`_`).
+        - Any characters with an ASCII value between 192 and 255 (some special ASCII characters).
+    - More abbreviations:
+        - `:iabbrev @@[steve@stevelosh.com](mailto:steve@stevelosh.com)`
+        - `:iabbrev ccopy Copyright 2013 Steve Losh, all rights reserved.`
+* Buffer-Local Options and Mappings
+
+    http://learnvimscriptthehardway.stevelosh.com/chapters/11.html
