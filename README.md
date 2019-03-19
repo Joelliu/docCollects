@@ -12,6 +12,7 @@ A collection of documentation
     - 在线浏览: https://kristol07.docs.stoplight.io/api-reference/oA-api
   - ceph-dashboard-postman-collection-v2.json
     - 使用 postman 收集的 ceph dashboard api
+  - /stoplight-backup: 网站备份文件
 
 - /vimwiki-backup: vimwiki 备份
 

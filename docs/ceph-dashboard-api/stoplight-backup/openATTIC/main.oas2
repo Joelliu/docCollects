@@ -1,0 +1,4887 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "openATTIC",
+    "description": "This OAS2 (Swagger 2) file represents a real API that lives at http://localhost/openattic/api.\n\n**Todo**:\n- LEVEL 0\n\t- 完成剩下的api --> **done (almost)**\n\t- 完善没有rest api的部分文档介绍（添加命令）--> **done (almost)**\n\t- 修改response status code（有些不是200，而是201 created,尤其是涉及到create操作的） --> **done**\n\t- 关于list的all/single看有没有区分path  --> **done**\n\t- 完善各个api的description  --> **done(imperfect)** 缺乏command注释；不详细\n- LEVEL 1\n\t- 检查为什么不能直接运行测试的原因\n\t- 中英文版本\n\t- 文档整体的intro部分（修改首页的模板内容）\n\t- 测试/server部分\n\t- API的重新设计（代码层面）\n\n### List of APIs:\n\n```\n[x]: 还没有完成   count: 3\n[xx]: 没有REST,无法完成，尽可能添加command注释   count: 24\n```\n\n- Auth:\n\t- login\n\t- logout\n- Pool: (command: http://docs.ceph.com/docs/mimic/rados/operations/pools/)\n\t- list all pools\n\t- list for single pool\n\t- create an erasure/replicated pool\n\t- update/edit a pool\n\t- delete a pool\n- RBD: (command: http://docs.ceph.com/docs/mimic/rbd/rados-rbd-cmds/)\n\t- list all rbds\n\t- list for single rbd\n\t- create a rbd\n\t- delete a rbd\n\t- increase the volume of a rbd (update/edit a rbd)\n\t- 链接克隆卷 (create an image from a snapshot, 使用快照链接创建卷)\n\t- 全克隆卷 (flatten an image cloned from snapshot(remove the reference), 使用快照创建独立卷) [xx]\n\t- 跨存储池全克隆卷 (copy image within the same pool) [x]\n\t- 跨存储池迁移卷 (copy image to a different pool, and remove the original image) [x] --> replicated to 'copy rbd image'+'delete image'\n- iSCSI:\n\t- list all iscsi targets\n\t- list for single iscsi target\n\t- create an iscsi target\n\t- update/edit an iscsi target\n\t- delete an iscsi target\n\t- start the service of an iscsi target\n\t- stop the service of an iscsi target\n- OSD:\n\t- list all osds\n\t- list for single osd [x]\n\t- create an osd [xx]\n\t- update/edit an osd [xx]\n\t- delete an osd [xx]\n- NFS:\n\t- list all nfs\n\t- list for single nfs\n\t- create a path of nfs\n\t- update/edit a path of nfs\n\t- delete a path of nfs\n- Snapshot: (command: http://docs.ceph.com/docs/mimic/rbd/rbd-snapshot/)\n\t- list all snapshots\n\t- list for single snapshot\n\t- create a snapshot\n\t- delete a snapshot\n\t- use snapshot for recovery (snapshot rollback function)\n\t- protect snapshot from being deleted\n\t- 使用快照链接创建卷\n\t- 使用快照创建独立卷 [xx]\n- User: (command: http://docs.ceph.com/docs/mimic/rados/operations/user-management/)\n\t- list all users\n\t- list for single user\n\t- create a user\n\t- update/edit a user\n\t- delete a user\n- Performance:\n\t- list iops of pool [xx]\n\t- list throughout of pool [xx]\n\t- list cpu usage [xx]\n\t- list RAM usage [xx]\n\t- list network usage [xx]\n\t- list read/write speed of physical disk [xx]\n\t- list average time delay of physical disk [xx]\n\t- list iops of rbd [xx]\n- Volume+Usage:\n\t- list total usage of cluster [xx]\n\t- list total volume of cluster [xx]\n\t- list usage of pools [xx]\n\t- list volume of pools [xx]\n\t- list usage of disks [xx]\n\t- list volume of disks [xx]\n\t- list usage of rbds [xx]\n\t- list volume of rbds [xx]\n- Status: (command: http://docs.ceph.com/docs/mimic/rados/operations/health-checks/; http://docs.ceph.com/docs/mimic/rados/operations/monitoring/)\n\t- list status of cluster [xx]\n\t- list status of nodes [xx]\n\t- list status of disks [xx]",
+    "contact": {
+      "name": "SUSE",
+      "url": "https://www.suse.com"
+    },
+    "license": {
+      "name": "GPL-3.0"
+    },
+    "termsOfService": "https://www.suse.com/company/legal/#terms"
+  },
+  "host": "localhost",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "apikey": {
+      "name": "apikey",
+      "type": "apiKey",
+      "in": "query",
+      "description": "#### Use ?apikey=123 to authenticate requests. Super secure, we know ;)."
+    },
+    "account": {
+      "type": "basic",
+      "description": "auth:\n- username\n- password"
+    }
+  },
+  "paths": {
+    "/ceph/{fsId}/pools/{poolId}": {
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "poolId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "erasure_code_profile": {
+                  "type": "null"
+                },
+                "quota_max_objects": {
+                  "type": "integer"
+                },
+                "quota_max_bytes": {
+                  "type": "integer"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "min_size": {
+                  "type": "integer"
+                },
+                "crash_replay_interval": {
+                  "type": "integer"
+                },
+                "cache_mode": {
+                  "type": "string"
+                },
+                "tier_of": {
+                  "type": "null"
+                },
+                "write_tier": {
+                  "type": "null"
+                },
+                "read_tier": {
+                  "type": "null"
+                },
+                "target_max_bytes": {
+                  "type": "integer"
+                },
+                "hit_set_period": {
+                  "type": "integer"
+                },
+                "hit_set_count": {
+                  "type": "integer"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "cluster": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "last_change": {
+                  "type": "integer"
+                },
+                "full": {
+                  "type": "boolean"
+                },
+                "pg_num": {
+                  "type": "integer"
+                },
+                "pgp_num": {
+                  "type": "integer"
+                },
+                "crush_ruleset": {
+                  "type": "integer"
+                },
+                "num_bytes": {
+                  "type": "integer"
+                },
+                "num_objects": {
+                  "type": "integer"
+                },
+                "max_avail": {
+                  "type": "integer"
+                },
+                "kb_used": {
+                  "type": "integer"
+                },
+                "percent_used": {
+                  "type": "integer"
+                },
+                "stripe_width": {
+                  "type": "integer"
+                },
+                "hit_set_params": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "tiers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "flags": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "compression_mode": {
+                  "type": "string"
+                },
+                "compression_algorithm": {
+                  "type": "string"
+                },
+                "compression_required_ratio": {
+                  "type": "integer"
+                },
+                "compression_max_blob_size": {
+                  "type": "integer"
+                },
+                "compression_min_blob_size": {
+                  "type": "integer"
+                },
+                "pool_snaps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "application_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "rbd": {
+                      "type": "object"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "type"
+              ]
+            },
+            "examples": {
+              "type_erasure": "{\n  \"erasure_code_profile\": \"default\",\n  \"quota_max_objects\": 0,\n  \"quota_max_bytes\": 0,\n  \"size\": null,\n  \"min_size\": null,\n  \"crash_replay_interval\": 0,\n  \"cache_mode\": \"none\",\n  \"tier_of\": null,\n  \"write_tier\": null,\n  \"read_tier\": null,\n  \"target_max_bytes\": 0,\n  \"hit_set_period\": 0,\n  \"hit_set_count\": 0,\n  \"id\": 9,\n  \"cluster\": \"310caaaa-2d4a-3d24-a3f4-8afd1ca4278a\",\n  \"name\": \"test_erasure\",\n  \"type\": \"erasure\",\n  \"last_change\": 136,\n  \"full\": false,\n  \"pg_num\": 8,\n  \"pgp_num\": 8,\n  \"crush_ruleset\": null,\n  \"num_bytes\": 0,\n  \"num_objects\": 0,\n  \"max_avail\": 105624428544,\n  \"kb_used\": 0,\n  \"percent_used\": 0,\n  \"stripe_width\": 8192,\n  \"hit_set_params\": {\n    \"type\": \"none\"\n  },\n  \"tiers\": [],\n  \"flags\": [],\n  \"compression_mode\": \"none\",\n  \"compression_algorithm\": \"none\",\n  \"compression_required_ratio\": 0,\n  \"compression_max_blob_size\": 0,\n  \"compression_min_blob_size\": 0,\n  \"pool_snaps\": [],\n  \"application_metadata\": {\n    \"cephfs\": {}\n  }\n}",
+              "type_replicated": {
+                "erasure_code_profile": null,
+                "quota_max_objects": 0,
+                "quota_max_bytes": 0,
+                "size": 1,
+                "min_size": 1,
+                "crash_replay_interval": 0,
+                "cache_mode": "none",
+                "tier_of": null,
+                "write_tier": null,
+                "read_tier": null,
+                "target_max_bytes": 0,
+                "hit_set_period": 0,
+                "hit_set_count": 0,
+                "id": 8,
+                "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "name": "test_replicated",
+                "type": "replicated",
+                "last_change": 130,
+                "full": false,
+                "pg_num": 8,
+                "pgp_num": 8,
+                "crush_ruleset": 0,
+                "num_bytes": 0,
+                "num_objects": 0,
+                "max_avail": 158438998016,
+                "kb_used": 0,
+                "percent_used": 0,
+                "stripe_width": 0,
+                "hit_set_params": {
+                  "type": "none"
+                },
+                "tiers": [],
+                "flags": [],
+                "compression_mode": "none",
+                "compression_algorithm": "none",
+                "compression_required_ratio": 0,
+                "compression_max_blob_size": 0,
+                "compression_min_blob_size": 0,
+                "pool_snaps": [],
+                "application_metadata": {
+                  "rbd": {}
+                }
+              }
+            }
+          }
+        },
+        "description": "create a pool with different types",
+        "operationId": "POST_pool",
+        "summary": "create pool",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "pg_num": {
+                  "type": "integer"
+                },
+                "application_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "rbd": {
+                      "type": "object"
+                    },
+                    "ceph-fs": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "type": {
+                  "type": "string"
+                },
+                "fsid": {
+                  "type": "string"
+                },
+                "crush_ruleset": {
+                  "type": "integer"
+                },
+                "min_size": {
+                  "type": "integer"
+                },
+                "size": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "name",
+                "pg_num",
+                "type",
+                "fsid",
+                "size"
+              ]
+            },
+            "x-examples": {
+              "application/json": {
+                "name": "test_erasure",
+                "pg_num": 8,
+                "application_metadata": {
+                  "cephfs": {}
+                },
+                "type": "erasure",
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "erasure_code_profile": "default"
+              }
+            }
+          }
+        ],
+        "tags": [
+          "pool"
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "erasure_code_profile": {
+                  "type": "null"
+                },
+                "quota_max_objects": {
+                  "type": "integer"
+                },
+                "quota_max_bytes": {
+                  "type": "integer"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "min_size": {
+                  "type": "integer"
+                },
+                "crash_replay_interval": {
+                  "type": "integer"
+                },
+                "cache_mode": {
+                  "type": "string"
+                },
+                "tier_of": {
+                  "type": "null"
+                },
+                "write_tier": {
+                  "type": "null"
+                },
+                "read_tier": {
+                  "type": "null"
+                },
+                "target_max_bytes": {
+                  "type": "integer"
+                },
+                "hit_set_period": {
+                  "type": "integer"
+                },
+                "hit_set_count": {
+                  "type": "integer"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "cluster": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "last_change": {
+                  "type": "integer"
+                },
+                "full": {
+                  "type": "boolean"
+                },
+                "pg_num": {
+                  "type": "integer"
+                },
+                "pgp_num": {
+                  "type": "integer"
+                },
+                "crush_ruleset": {
+                  "type": "integer"
+                },
+                "num_bytes": {
+                  "type": "integer"
+                },
+                "num_objects": {
+                  "type": "integer"
+                },
+                "max_avail": {
+                  "type": "integer"
+                },
+                "kb_used": {
+                  "type": "integer"
+                },
+                "percent_used": {
+                  "type": "integer"
+                },
+                "stripe_width": {
+                  "type": "integer"
+                },
+                "hit_set_params": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "tiers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "flags": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "compression_mode": {
+                  "type": "string"
+                },
+                "compression_algorithm": {
+                  "type": "string"
+                },
+                "compression_required_ratio": {
+                  "type": "integer"
+                },
+                "compression_max_blob_size": {
+                  "type": "integer"
+                },
+                "compression_min_blob_size": {
+                  "type": "integer"
+                },
+                "pool_snaps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "application_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "cephfs": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "erasure_code_profile": null,
+                "quota_max_objects": 0,
+                "quota_max_bytes": 0,
+                "size": 1,
+                "min_size": 1,
+                "crash_replay_interval": 0,
+                "cache_mode": "none",
+                "tier_of": null,
+                "write_tier": null,
+                "read_tier": null,
+                "target_max_bytes": 0,
+                "hit_set_period": 0,
+                "hit_set_count": 0,
+                "id": 8,
+                "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "name": "test_replicated",
+                "type": "replicated",
+                "last_change": 133,
+                "full": false,
+                "pg_num": 16,
+                "pgp_num": 8,
+                "crush_ruleset": 0,
+                "num_bytes": 0,
+                "num_objects": 0,
+                "max_avail": 158434017280,
+                "kb_used": 0,
+                "percent_used": 0,
+                "stripe_width": 0,
+                "hit_set_params": {
+                  "type": "none"
+                },
+                "tiers": [],
+                "flags": [],
+                "compression_mode": "none",
+                "compression_algorithm": "none",
+                "compression_required_ratio": 0,
+                "compression_max_blob_size": 0,
+                "compression_min_blob_size": 0,
+                "pool_snaps": [],
+                "application_metadata": {
+                  "cephfs": {}
+                }
+              }
+            }
+          }
+        },
+        "summary": "update pool",
+        "operationId": "PUT_pool",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "pg_num": {
+                  "type": "integer"
+                },
+                "application_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "cephfs": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "id"
+              ]
+            }
+          }
+        ],
+        "description": "update a pool",
+        "tags": [
+          "pool"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "delete pool",
+        "operationId": "DELETE_pool",
+        "description": "delete a pool",
+        "tags": [
+          "pool"
+        ]
+      }
+    },
+    "/auth": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_staff": {
+                  "type": "boolean"
+                },
+                "is_superuser": {
+                  "type": "boolean"
+                },
+                "last_login": {
+                  "type": "string"
+                },
+                "date_joined": {
+                  "type": "string"
+                },
+                "auth_token": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "createdate": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "url": "http://localhost/openattic/api/users/1",
+                "id": 1,
+                "username": "openattic",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "is_active": true,
+                "is_staff": true,
+                "is_superuser": true,
+                "last_login": "2018-12-04T05:45:03.143181",
+                "date_joined": "2018-11-12T05:15:21.879642",
+                "auth_token": {
+                  "token": "ff4584b5cfb8688db8715e546a3047870b934186",
+                  "createdate": "2018-11-12T05:15:21.965"
+                },
+                "profile": {
+                  "url": "http://localhost/openattic/api/userprofiles/1"
+                }
+              }
+            }
+          }
+        },
+        "summary": "login",
+        "description": "this enables login of oA dashboard",
+        "operationId": "POST_auth",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "username",
+            "type": "string",
+            "default": "openattic"
+          },
+          {
+            "in": "formData",
+            "name": "password",
+            "type": "string",
+            "format": "password",
+            "default": "openattic"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object"
+            },
+            "examples": {
+              "application/json": {}
+            }
+          }
+        },
+        "summary": "logout",
+        "description": "this enables logout of OA dashboard",
+        "operationId": "DELETE_auth",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "username",
+            "type": "string",
+            "default": "openattic"
+          },
+          {
+            "in": "formData",
+            "name": "password",
+            "type": "string",
+            "default": "openattic",
+            "format": "password"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/ceph/{fsId}/rbds/{rbd-name}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "pool": {
+                  "type": "integer"
+                },
+                "data_pool": {
+                  "type": "null"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "obj_size": {
+                  "type": "integer"
+                },
+                "num_objs": {
+                  "type": "integer"
+                },
+                "block_name_prefix": {
+                  "type": "string"
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "old_format": {
+                  "type": "boolean"
+                },
+                "used_size": {
+                  "type": "null"
+                },
+                "stripe_unit": {
+                  "type": "null"
+                },
+                "stripe_count": {
+                  "type": "null"
+                },
+                "parent": {
+                  "type": "null"
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "id": "iscsi-images/demo",
+                "name": "demo",
+                "pool": 1,
+                "data_pool": null,
+                "size": 1084479242,
+                "obj_size": 4194304,
+                "num_objs": 259,
+                "block_name_prefix": "rbd_data.10486b8b4567",
+                "features": [
+                  "layering"
+                ],
+                "old_format": false,
+                "used_size": null,
+                "stripe_unit": null,
+                "stripe_count": null,
+                "parent": null
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "description": "list rbd information, if query param 'name' is defined, then list the specified rbd's information",
+        "summary": "list rbd",
+        "operationId": "GET_rbd",
+        "tags": [
+          "rbd"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "rbd-name",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "delete rbd",
+        "operationId": "DELETE_rbd",
+        "description": "delete a rados block device",
+        "tags": [
+          "rbd"
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "pool": {
+                  "type": "integer"
+                },
+                "data_pool": {
+                  "type": "null"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "obj_size": {
+                  "type": "integer"
+                },
+                "num_objs": {
+                  "type": "integer"
+                },
+                "block_name_prefix": {
+                  "type": "string"
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "old_format": {
+                  "type": "boolean"
+                },
+                "used_size": {
+                  "type": "null"
+                },
+                "stripe_unit": {
+                  "type": "null"
+                },
+                "stripe_count": {
+                  "type": "null"
+                },
+                "parent": {
+                  "type": "null"
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "id": "default.rgw.control/test_rbd",
+                "name": "test_rbd",
+                "pool": 4,
+                "data_pool": null,
+                "size": 5368709120,
+                "obj_size": 4194304,
+                "num_objs": 1280,
+                "block_name_prefix": "rbd_data.dc766643c9869",
+                "features": [],
+                "old_format": false,
+                "used_size": null,
+                "stripe_unit": null,
+                "stripe_count": null,
+                "parent": null
+              }
+            }
+          }
+        },
+        "summary": "update rbd",
+        "operationId": "PUT_rbd",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "pool": {
+                  "type": "integer"
+                },
+                "obj_size": {
+                  "type": "integer"
+                },
+                "parent": {
+                  "type": "null"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "data_pool": {
+                  "type": "null"
+                },
+                "num_objs": {
+                  "type": "integer"
+                },
+                "block_name_prefix": {
+                  "type": "string"
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "old_format": {
+                  "type": "boolean"
+                },
+                "used_size": {
+                  "type": "null"
+                },
+                "stripe_unit": {
+                  "type": "null"
+                },
+                "stripe_count": {
+                  "type": "null"
+                },
+                "fsid": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "name": "test_rbd",
+                "size": 5368709120,
+                "pool": 4,
+                "obj_size": 4194304,
+                "parent": null,
+                "id": "default.rgw.control/test_rbd",
+                "data_pool": null,
+                "num_objs": 512,
+                "block_name_prefix": "rbd_data.dc766643c9869",
+                "features": [],
+                "old_format": false,
+                "used_size": null,
+                "stripe_unit": null,
+                "stripe_count": null,
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a"
+              }
+            }
+          }
+        ],
+        "description": "update rbd.\noperation examples:\n- increase volume:\n\t- path: /ceph/{fsId}/rbds/{pool-name}/{image-name}",
+        "tags": [
+          "rbd"
+        ]
+      }
+    },
+    "/ceph_iscsi/{fsId}/iscsitargets/{targetId}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "targetId": {
+                  "type": "string"
+                },
+                "newTargetId": {
+                  "type": "null"
+                },
+                "targetSettings": {
+                  "type": "object"
+                },
+                "portals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "interface": {
+                        "type": "string"
+                      },
+                      "hostname": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "pool": {
+                        "type": "string"
+                      },
+                      "settings": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "authentication": {
+                  "type": "object",
+                  "properties": {
+                    "mutualPassword": {
+                      "type": "null"
+                    },
+                    "discoveryPassword": {
+                      "type": "null"
+                    },
+                    "hasAuthentication": {
+                      "type": "boolean"
+                    },
+                    "discoveryMutualPassword": {
+                      "type": "null"
+                    },
+                    "discoveryMutualUser": {
+                      "type": "null"
+                    },
+                    "discoveryUser": {
+                      "type": "null"
+                    },
+                    "enabledDiscoveryMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasDiscoveryAuthentication": {
+                      "type": "boolean"
+                    },
+                    "enabledMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "user": {
+                      "type": "null"
+                    },
+                    "initiators": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "enabledDiscoveryAuthentication": {
+                      "type": "boolean"
+                    },
+                    "password": {
+                      "type": "null"
+                    },
+                    "mutualUser": {
+                      "type": "null"
+                    },
+                    "hasDiscoveryMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasMutualAuthentication": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "targetId": "iqn.2016-11.org.linux-iscsi.igw.x86:sn.demo",
+                "newTargetId": null,
+                "targetSettings": {},
+                "portals": [
+                  {
+                    "interface": "192.168.122.63",
+                    "hostname": "node3"
+                  },
+                  {
+                    "interface": "192.168.122.62",
+                    "hostname": "node2"
+                  }
+                ],
+                "images": [
+                  {
+                    "name": "demo",
+                    "pool": "iscsi-images",
+                    "settings": {}
+                  }
+                ],
+                "authentication": {
+                  "mutualPassword": null,
+                  "discoveryPassword": null,
+                  "hasAuthentication": false,
+                  "discoveryMutualPassword": null,
+                  "discoveryMutualUser": null,
+                  "discoveryUser": null,
+                  "enabledDiscoveryMutualAuthentication": false,
+                  "hasDiscoveryAuthentication": false,
+                  "enabledMutualAuthentication": false,
+                  "user": null,
+                  "initiators": [],
+                  "enabledDiscoveryAuthentication": false,
+                  "password": null,
+                  "mutualUser": null,
+                  "hasDiscoveryMutualAuthentication": false,
+                  "hasMutualAuthentication": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "list iscsi target",
+        "description": "list the information of the specified iscsi target",
+        "operationId": "GET_iscsitarget",
+        "parameters": [],
+        "tags": [
+          "iscsi"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "targetId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "put": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "targetId": {
+                  "type": "string"
+                },
+                "newTargetId": {
+                  "type": "string"
+                },
+                "targetSettings": {
+                  "type": "null"
+                },
+                "portals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "interface": {
+                        "type": "string"
+                      },
+                      "hostname": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "pool": {
+                        "type": "string"
+                      },
+                      "settings": {
+                        "type": "object",
+                        "properties": {
+                          "lun": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "authentication": {
+                  "type": "object",
+                  "properties": {
+                    "hasDiscoveryAuthentication": {
+                      "type": "boolean"
+                    },
+                    "initiators": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "hasAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasDiscoveryMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasMutualAuthentication": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "targetId": "iqn.1996-10.com.suse:test1",
+                "newTargetId": "iqn.1996-10.com.suse:test1",
+                "targetSettings": null,
+                "portals": [
+                  {
+                    "interface": "192.168.122.63",
+                    "hostname": "node3.ses.suse.com"
+                  }
+                ],
+                "images": [
+                  {
+                    "name": "test_rbd",
+                    "pool": "default.rgw.control",
+                    "settings": {
+                      "lun": 0
+                    }
+                  }
+                ],
+                "authentication": {
+                  "hasDiscoveryAuthentication": false,
+                  "initiators": [],
+                  "hasAuthentication": false,
+                  "hasDiscoveryMutualAuthentication": false,
+                  "hasMutualAuthentication": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "update iscsi target",
+        "description": "update iscsi target",
+        "operationId": "PUT_iscsitarget",
+        "tags": [
+          "iscsi"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "targetId": {
+                  "type": "string"
+                },
+                "newTargetId": {
+                  "type": "string"
+                },
+                "targetSettings": {
+                  "type": "object"
+                },
+                "portals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hostname": {
+                        "type": "string"
+                      },
+                      "interface": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "pool": {
+                        "type": "string"
+                      },
+                      "settings": {
+                        "type": "object",
+                        "properties": {
+                          "lun": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "authentication": {
+                  "type": "object",
+                  "properties": {
+                    "hasAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasDiscoveryAuthentication": {
+                      "type": "boolean"
+                    },
+                    "initiators": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "hasDiscoveryMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasMutualAuthentication": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "fsid": {
+                  "type": "string"
+                },
+                "originalTargetId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "targetId",
+                "newTargetId",
+                "portals",
+                "images"
+              ]
+            },
+            "x-examples": {
+              "application/json": {
+                "targetId": "iqn.1996-10.com.suse:test1",
+                "newTargetId": "iqn.1996-10.com.suse:test1",
+                "targetSettings": {},
+                "portals": [
+                  {
+                    "hostname": "node3.ses.suse.com",
+                    "interface": "192.168.122.63"
+                  }
+                ],
+                "images": [
+                  {
+                    "name": "test_rbd",
+                    "pool": "default.rgw.control",
+                    "settings": {
+                      "lun": 0
+                    }
+                  }
+                ],
+                "authentication": {
+                  "hasAuthentication": false,
+                  "hasDiscoveryAuthentication": false,
+                  "initiators": [],
+                  "hasDiscoveryMutualAuthentication": false,
+                  "hasMutualAuthentication": false
+                },
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "originalTargetId": "iqn.1996-10.com.suse:test1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/ceph_iscsi/{fsId}/iscsitargets/bulk_delete": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "delete iscsi target",
+        "description": "delete iscsi target",
+        "operationId": "DELETE_iscsitarget",
+        "tags": [
+          "iscsi"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "targetIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "targetIds": [
+                  "iqn.1996-10.com.suse:test1"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph_iscsi/{fsId}/iscsideploy": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "start iscsi target",
+        "description": "start iscsi target service",
+        "operationId": "START_iscsitarget",
+        "tags": [
+          "iscsi"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph_iscsi/{fsId}/iscsiundeploy": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "stop iscsi target",
+        "description": "stop iscsi target service",
+        "operationId": "STOP_iscsitarget",
+        "tags": [
+          "iscsi"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph/{fsId}/osds": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "cluster": {
+                        "type": "string"
+                      },
+                      "crush_weight": {
+                        "type": "number"
+                      },
+                      "exists": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "primary_affinity": {
+                        "type": "integer"
+                      },
+                      "reweight": {
+                        "type": "integer"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "hostname": {
+                        "type": "string"
+                      },
+                      "in_state": {
+                        "type": "integer"
+                      },
+                      "osd_objectstore": {
+                        "type": "string"
+                      },
+                      "kb": {
+                        "type": "integer"
+                      },
+                      "kb_used": {
+                        "type": "integer"
+                      },
+                      "kb_avail": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 4,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "id": 0,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "crush_weight": 0.038986,
+                    "exists": 1,
+                    "name": "osd.0",
+                    "primary_affinity": 1,
+                    "reweight": 1,
+                    "status": "up",
+                    "type": "osd",
+                    "hostname": "node1",
+                    "in_state": 1,
+                    "osd_objectstore": "bluestore",
+                    "kb": 41839596,
+                    "kb_used": 1070380,
+                    "kb_avail": 40769216
+                  },
+                  {
+                    "id": 1,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "crush_weight": 0.038986,
+                    "exists": 1,
+                    "name": "osd.1",
+                    "primary_affinity": 1,
+                    "reweight": 1,
+                    "status": "up",
+                    "type": "osd",
+                    "hostname": "node4",
+                    "in_state": 1,
+                    "osd_objectstore": "bluestore",
+                    "kb": 41839596,
+                    "kb_used": 1070380,
+                    "kb_avail": 40769216
+                  },
+                  {
+                    "id": 2,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "crush_weight": 0.038986,
+                    "exists": 1,
+                    "name": "osd.2",
+                    "primary_affinity": 1,
+                    "reweight": 1,
+                    "status": "up",
+                    "type": "osd",
+                    "hostname": "node3",
+                    "in_state": 1,
+                    "osd_objectstore": "bluestore",
+                    "kb": 41839596,
+                    "kb_used": 1070380,
+                    "kb_avail": 40769216
+                  },
+                  {
+                    "id": 3,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "crush_weight": 0.038986,
+                    "exists": 1,
+                    "name": "osd.3",
+                    "primary_affinity": 1,
+                    "reweight": 1,
+                    "status": "up",
+                    "type": "osd",
+                    "hostname": "node2",
+                    "in_state": 1,
+                    "osd_objectstore": "bluestore",
+                    "kb": 41839596,
+                    "kb_used": 1070444,
+                    "kb_avail": 40769152
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "list osds",
+        "description": "list information of all osds",
+        "operationId": "GET_osds",
+        "tags": [
+          "osd"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "string",
+            "default": "name"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "integer"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph_iscsi/{fsId}/iscsitargets": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "targetId": {
+                        "type": "string"
+                      },
+                      "newTargetId": {
+                        "type": "null"
+                      },
+                      "targetSettings": {
+                        "type": "object"
+                      },
+                      "portals": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "interface": {
+                              "type": "string"
+                            },
+                            "hostname": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "images": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "pool": {
+                              "type": "string"
+                            },
+                            "settings": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      },
+                      "authentication": {
+                        "type": "object",
+                        "properties": {
+                          "mutualPassword": {
+                            "type": "null"
+                          },
+                          "discoveryPassword": {
+                            "type": "null"
+                          },
+                          "hasAuthentication": {
+                            "type": "boolean"
+                          },
+                          "discoveryMutualPassword": {
+                            "type": "null"
+                          },
+                          "discoveryMutualUser": {
+                            "type": "null"
+                          },
+                          "discoveryUser": {
+                            "type": "null"
+                          },
+                          "enabledDiscoveryMutualAuthentication": {
+                            "type": "boolean"
+                          },
+                          "hasDiscoveryAuthentication": {
+                            "type": "boolean"
+                          },
+                          "enabledMutualAuthentication": {
+                            "type": "boolean"
+                          },
+                          "user": {
+                            "type": "null"
+                          },
+                          "initiators": {
+                            "type": "array",
+                            "items": {
+                              "type": "object"
+                            }
+                          },
+                          "enabledDiscoveryAuthentication": {
+                            "type": "boolean"
+                          },
+                          "password": {
+                            "type": "null"
+                          },
+                          "mutualUser": {
+                            "type": "null"
+                          },
+                          "hasDiscoveryMutualAuthentication": {
+                            "type": "boolean"
+                          },
+                          "hasMutualAuthentication": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "targetId": "iqn.2016-11.org.linux-iscsi.igw.x86:sn.demo",
+                    "newTargetId": null,
+                    "targetSettings": {},
+                    "portals": [
+                      {
+                        "interface": "192.168.122.63",
+                        "hostname": "node3"
+                      },
+                      {
+                        "interface": "192.168.122.62",
+                        "hostname": "node2"
+                      }
+                    ],
+                    "images": [
+                      {
+                        "name": "demo",
+                        "pool": "iscsi-images",
+                        "settings": {}
+                      }
+                    ],
+                    "authentication": {
+                      "mutualPassword": null,
+                      "discoveryPassword": null,
+                      "hasAuthentication": false,
+                      "discoveryMutualPassword": null,
+                      "discoveryMutualUser": null,
+                      "discoveryUser": null,
+                      "enabledDiscoveryMutualAuthentication": false,
+                      "hasDiscoveryAuthentication": false,
+                      "enabledMutualAuthentication": false,
+                      "user": null,
+                      "initiators": [],
+                      "enabledDiscoveryAuthentication": false,
+                      "password": null,
+                      "mutualUser": null,
+                      "hasDiscoveryMutualAuthentication": false,
+                      "hasMutualAuthentication": false
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "list iscsi targets",
+        "description": "list all iscsi targets",
+        "operationId": "GET_iscsitargets",
+        "tags": [
+          "iscsi"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string",
+            "description": "iSCSI targetId"
+          },
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "string",
+            "default": "targetId"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "integer",
+            "default": 10
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "targetId": {
+                  "type": "string"
+                },
+                "newTargetId": {
+                  "type": "null"
+                },
+                "targetSettings": {
+                  "type": "null"
+                },
+                "portals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "interface": {
+                        "type": "string"
+                      },
+                      "hostname": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "pool": {
+                        "type": "string"
+                      },
+                      "settings": {
+                        "type": "object",
+                        "properties": {
+                          "lun": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "authentication": {
+                  "type": "object",
+                  "properties": {
+                    "initiators": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "hasDiscoveryAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasDiscoveryMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasMutualAuthentication": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "targetId": "iqn.1996-10.com.suse:test1",
+                "newTargetId": null,
+                "targetSettings": null,
+                "portals": [
+                  {
+                    "interface": "192.168.122.62",
+                    "hostname": "node2.ses.suse.com"
+                  }
+                ],
+                "images": [
+                  {
+                    "name": "demo",
+                    "pool": "iscsi-images",
+                    "settings": {
+                      "lun": 0
+                    }
+                  }
+                ],
+                "authentication": {
+                  "initiators": [],
+                  "hasDiscoveryAuthentication": false,
+                  "hasAuthentication": false,
+                  "hasDiscoveryMutualAuthentication": false,
+                  "hasMutualAuthentication": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "create iscsi target",
+        "description": "create iscsi target",
+        "operationId": "POST_iscsitarget",
+        "tags": [
+          "iscsi"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "targetId": {
+                  "type": "string"
+                },
+                "targetSettings": {
+                  "type": "object"
+                },
+                "portals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "hostname": {
+                        "type": "string"
+                      },
+                      "interface": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "pool": {
+                        "type": "string"
+                      },
+                      "settings": {
+                        "type": "object",
+                        "properties": {
+                          "lun": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "authentication": {
+                  "type": "object",
+                  "properties": {
+                    "hasAuthentication": {
+                      "type": "boolean"
+                    },
+                    "initiators": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "hasMutualAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasDiscoveryAuthentication": {
+                      "type": "boolean"
+                    },
+                    "hasDiscoveryMutualAuthentication": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "originalTargetId": {
+                  "type": "null"
+                },
+                "newTargetId": {
+                  "type": "null"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "targetId": "iqn.1996-10.com.suse:test1",
+                "targetSettings": {},
+                "portals": [
+                  {
+                    "hostname": "node2.ses.suse.com",
+                    "interface": "192.168.122.62"
+                  }
+                ],
+                "images": [
+                  {
+                    "name": "demo",
+                    "pool": "iscsi-images",
+                    "settings": {
+                      "lun": 0
+                    }
+                  }
+                ],
+                "authentication": {
+                  "hasAuthentication": false,
+                  "initiators": [],
+                  "hasMutualAuthentication": false,
+                  "hasDiscoveryAuthentication": false,
+                  "hasDiscoveryMutualAuthentication": false
+                },
+                "originalTargetId": null,
+                "newTargetId": null
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/ceph/{fsId}/rbds": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "pool": {
+                        "type": "integer"
+                      },
+                      "data_pool": {
+                        "type": "null"
+                      },
+                      "size": {
+                        "type": "integer"
+                      },
+                      "obj_size": {
+                        "type": "integer"
+                      },
+                      "num_objs": {
+                        "type": "integer"
+                      },
+                      "block_name_prefix": {
+                        "type": "string"
+                      },
+                      "features": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "old_format": {
+                        "type": "boolean"
+                      },
+                      "used_size": {
+                        "type": "null"
+                      },
+                      "stripe_unit": {
+                        "type": "null"
+                      },
+                      "stripe_count": {
+                        "type": "null"
+                      },
+                      "parent": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "id": "iscsi-images/demo",
+                    "name": "demo",
+                    "pool": 1,
+                    "data_pool": null,
+                    "size": 1084479242,
+                    "obj_size": 4194304,
+                    "num_objs": 259,
+                    "block_name_prefix": "rbd_data.10486b8b4567",
+                    "features": [
+                      "layering"
+                    ],
+                    "old_format": false,
+                    "used_size": null,
+                    "stripe_unit": null,
+                    "stripe_count": null,
+                    "parent": null
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "list rbds",
+        "operationId": "GET_rbds",
+        "tags": [
+          "rbd"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "string",
+            "default": "name"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "string",
+            "default": "10"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string"
+          }
+        ],
+        "description": "list information of all rbds\n\n**if**\n- query param 'name' is defined, then list information of given rbd"
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "pool": {
+                  "type": "integer"
+                },
+                "data_pool": {
+                  "type": "null"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "obj_size": {
+                  "type": "integer"
+                },
+                "num_objs": {
+                  "type": "integer"
+                },
+                "block_name_prefix": {
+                  "type": "string"
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "old_format": {
+                  "type": "boolean"
+                },
+                "used_size": {
+                  "type": "null"
+                },
+                "stripe_unit": {
+                  "type": "null"
+                },
+                "stripe_count": {
+                  "type": "null"
+                },
+                "parent": {
+                  "type": "null"
+                }
+              }
+            },
+            "examples": {
+              "created rbd": {
+                "id": "default.rgw.control/test_rbd",
+                "name": "test_rbd",
+                "pool": 4,
+                "data_pool": null,
+                "size": 2147483648,
+                "obj_size": 4194304,
+                "num_objs": 512,
+                "block_name_prefix": "rbd_data.dc766643c9869",
+                "features": [],
+                "old_format": false,
+                "used_size": null,
+                "stripe_unit": null,
+                "stripe_count": null,
+                "parent": null
+              },
+              "created rbd from snapshot": "{\"id\": \"iscsi-images/test_cloned\", \"name\": \"test_cloned\", \"pool\": 1, \"data_pool\": null, \"size\": 1084479242, \"obj_size\": 4194304, \"num_objs\": 259, \"block_name_prefix\": \"rbd_data.ee66074b0dc51\", \"features\": [\"layering\"], \"old_format\": false, \"used_size\": null, \"stripe_unit\": null, \"stripe_count\": null, \"parent\": {\"pool_name\": \"iscsi-images\", \"image_name\": \"demo\", \"snap_name\": \"test\"}}"
+            }
+          }
+        },
+        "summary": "create rbd (from snapshot)",
+        "operationId": "POST_rbd",
+        "tags": [
+          "rbd"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "pool",
+            "type": "number"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "size": {
+                  "type": "integer"
+                },
+                "pool": {
+                  "type": "integer"
+                },
+                "obj_size": {
+                  "type": "integer"
+                },
+                "parent": {
+                  "type": "object",
+                  "properties": {
+                    "pool_name": {
+                      "type": "string"
+                    },
+                    "image_name": {
+                      "type": "string"
+                    },
+                    "snap_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "id": {
+                  "type": "string"
+                },
+                "data_pool": {
+                  "type": "null"
+                },
+                "num_objs": {
+                  "type": "integer"
+                },
+                "block_name_prefix": {
+                  "type": "string"
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "old_format": {
+                  "type": "boolean"
+                },
+                "used_size": {
+                  "type": "null"
+                },
+                "stripe_unit": {
+                  "type": "null"
+                },
+                "stripe_count": {
+                  "type": "null"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "fsid": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-examples": {
+              "create rbd": "{\n  \"name\": \"test_rbd\",\n  \"size\": 2147483648,\n  \"pool\": 4,\n  \"obj_size\": 4194304,\n  \"parent\": null,\n  \"fsid\": \"310caaaa-2d4a-3d24-a3f4-8afd1ca4278a\"\n}",
+              "create rbd from snapshot": "{\"size\":1084479242,\"pool\":1,\"obj_size\":4194304,\"parent\":{\"pool_name\":\"iscsi-images\",\"image_name\":\"demo\",\"snap_name\":\"test\"},\"id\":\"iscsi-images/demo\",\"data_pool\":null,\"num_objs\":259,\"block_name_prefix\":\"rbd_data.10486b8b4567\",\"features\":[\"layering\"],\"old_format\":false,\"used_size\":null,\"stripe_unit\":null,\"stripe_count\":null,\"name\":\"test_cloned\",\"fsid\":\"310caaaa-2d4a-3d24-a3f4-8afd1ca4278a\"}"
+            }
+          }
+        ],
+        "description": "- create rbd image\n- or create image from snapshot"
+      }
+    },
+    "/ceph/{fsId}/pools": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "erasure_code_profile": {
+                        "type": "null"
+                      },
+                      "quota_max_objects": {
+                        "type": "integer"
+                      },
+                      "quota_max_bytes": {
+                        "type": "integer"
+                      },
+                      "size": {
+                        "type": "integer"
+                      },
+                      "min_size": {
+                        "type": "integer"
+                      },
+                      "crash_replay_interval": {
+                        "type": "integer"
+                      },
+                      "cache_mode": {
+                        "type": "string"
+                      },
+                      "tier_of": {
+                        "type": "null"
+                      },
+                      "write_tier": {
+                        "type": "null"
+                      },
+                      "read_tier": {
+                        "type": "null"
+                      },
+                      "target_max_bytes": {
+                        "type": "integer"
+                      },
+                      "hit_set_period": {
+                        "type": "integer"
+                      },
+                      "hit_set_count": {
+                        "type": "integer"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "cluster": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "last_change": {
+                        "type": "integer"
+                      },
+                      "full": {
+                        "type": "boolean"
+                      },
+                      "pg_num": {
+                        "type": "integer"
+                      },
+                      "pgp_num": {
+                        "type": "integer"
+                      },
+                      "crush_ruleset": {
+                        "type": "integer"
+                      },
+                      "num_bytes": {
+                        "type": "integer"
+                      },
+                      "num_objects": {
+                        "type": "integer"
+                      },
+                      "max_avail": {
+                        "type": "integer"
+                      },
+                      "kb_used": {
+                        "type": "integer"
+                      },
+                      "percent_used": {
+                        "type": "integer"
+                      },
+                      "stripe_width": {
+                        "type": "integer"
+                      },
+                      "hit_set_params": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "tiers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      },
+                      "flags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "compression_mode": {
+                        "type": "string"
+                      },
+                      "compression_algorithm": {
+                        "type": "string"
+                      },
+                      "compression_required_ratio": {
+                        "type": "integer"
+                      },
+                      "compression_max_blob_size": {
+                        "type": "integer"
+                      },
+                      "compression_min_blob_size": {
+                        "type": "integer"
+                      },
+                      "pool_snaps": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      },
+                      "application_metadata": {
+                        "type": "object",
+                        "properties": {
+                          "rgw": {
+                            "type": "object"
+                          },
+                          "rbd": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 7,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 3,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": ".rgw.root",
+                    "type": "replicated",
+                    "last_change": 21,
+                    "full": false,
+                    "pg_num": 8,
+                    "pgp_num": 8,
+                    "crush_ruleset": 0,
+                    "num_bytes": 1113,
+                    "num_objects": 4,
+                    "max_avail": 52813086720,
+                    "kb_used": 2,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "rgw": {}
+                    }
+                  },
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 2,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": "cephfs_data",
+                    "type": "replicated",
+                    "last_change": 71,
+                    "full": false,
+                    "pg_num": 128,
+                    "pgp_num": 128,
+                    "crush_ruleset": 0,
+                    "num_bytes": 0,
+                    "num_objects": 0,
+                    "max_avail": 52813086720,
+                    "kb_used": 0,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "cephfs": {}
+                    }
+                  },
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 7,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": "cephfs_metadata",
+                    "type": "replicated",
+                    "last_change": 119,
+                    "full": false,
+                    "pg_num": 64,
+                    "pgp_num": 64,
+                    "crush_ruleset": 0,
+                    "num_bytes": 11053,
+                    "num_objects": 23,
+                    "max_avail": 52813086720,
+                    "kb_used": 11,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "cephfs": {}
+                    }
+                  },
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 4,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": "default.rgw.control",
+                    "type": "replicated",
+                    "last_change": 44,
+                    "full": false,
+                    "pg_num": 8,
+                    "pgp_num": 8,
+                    "crush_ruleset": 0,
+                    "num_bytes": 0,
+                    "num_objects": 8,
+                    "max_avail": 52813086720,
+                    "kb_used": 0,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "rgw": {}
+                    }
+                  },
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 6,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": "default.rgw.log",
+                    "type": "replicated",
+                    "last_change": 48,
+                    "full": false,
+                    "pg_num": 8,
+                    "pgp_num": 8,
+                    "crush_ruleset": 0,
+                    "num_bytes": 0,
+                    "num_objects": 207,
+                    "max_avail": 52813086720,
+                    "kb_used": 0,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "rgw": {}
+                    }
+                  },
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 5,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": "default.rgw.meta",
+                    "type": "replicated",
+                    "last_change": 46,
+                    "full": false,
+                    "pg_num": 8,
+                    "pgp_num": 8,
+                    "crush_ruleset": 0,
+                    "num_bytes": 373,
+                    "num_objects": 3,
+                    "max_avail": 52813086720,
+                    "kb_used": 1,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "rgw": {}
+                    }
+                  },
+                  {
+                    "erasure_code_profile": null,
+                    "quota_max_objects": 0,
+                    "quota_max_bytes": 0,
+                    "size": 3,
+                    "min_size": 2,
+                    "crash_replay_interval": 0,
+                    "cache_mode": "none",
+                    "tier_of": null,
+                    "write_tier": null,
+                    "read_tier": null,
+                    "target_max_bytes": 0,
+                    "hit_set_period": 0,
+                    "hit_set_count": 0,
+                    "id": 1,
+                    "cluster": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                    "name": "iscsi-images",
+                    "type": "replicated",
+                    "last_change": 120,
+                    "full": false,
+                    "pg_num": 128,
+                    "pgp_num": 128,
+                    "crush_ruleset": 0,
+                    "num_bytes": 35,
+                    "num_objects": 5,
+                    "max_avail": 52813086720,
+                    "kb_used": 1,
+                    "percent_used": 0,
+                    "stripe_width": 0,
+                    "hit_set_params": {
+                      "type": "none"
+                    },
+                    "tiers": [],
+                    "flags": [
+                      "hashpspool"
+                    ],
+                    "compression_mode": "none",
+                    "compression_algorithm": "none",
+                    "compression_required_ratio": 0,
+                    "compression_max_blob_size": 0,
+                    "compression_min_blob_size": 0,
+                    "pool_snaps": [],
+                    "application_metadata": {
+                      "rbd": {}
+                    }
+                  }
+                ]
+              },
+              "list specified pool": "{\n  \"count\": 1,\n  \"next\": null,\n  \"previous\": null,\n  \"results\": [\n    {\n      \"erasure_code_profile\": null,\n      \"quota_max_objects\": 0,\n      \"quota_max_bytes\": 0,\n      \"size\": 3,\n      \"min_size\": 2,\n      \"crash_replay_interval\": 0,\n      \"cache_mode\": \"none\",\n      \"tier_of\": null,\n      \"write_tier\": null,\n      \"read_tier\": null,\n      \"target_max_bytes\": 0,\n      \"hit_set_period\": 0,\n      \"hit_set_count\": 0,\n      \"id\": 2,\n      \"cluster\": \"310caaaa-2d4a-3d24-a3f4-8afd1ca4278a\",\n      \"name\": \"cephfs_data\",\n      \"type\": \"replicated\",\n      \"last_change\": 71,\n      \"full\": false,\n      \"pg_num\": 128,\n      \"pgp_num\": 128,\n      \"crush_ruleset\": 0,\n      \"num_bytes\": 0,\n      \"num_objects\": 0,\n      \"max_avail\": 52813086720,\n      \"kb_used\": 0,\n      \"percent_used\": 0,\n      \"stripe_width\": 0,\n      \"hit_set_params\": {\n        \"type\": \"none\"\n      },\n      \"tiers\": [],\n      \"flags\": [\n        \"hashpspool\"\n      ],\n      \"compression_mode\": \"none\",\n      \"compression_algorithm\": \"none\",\n      \"compression_required_ratio\": 0,\n      \"compression_max_blob_size\": 0,\n      \"compression_min_blob_size\": 0,\n      \"pool_snaps\": [],\n      \"application_metadata\": {\n        \"cephfs\": {}\n      }\n    }\n  ]\n}"
+            }
+          }
+        },
+        "summary": "list pools",
+        "description": "list information of all pools\n\n**if** \n- query param 'name' is given, then list information of given pool\n~ /ceph/{fsId}/pools/{poolId}",
+        "operationId": "GET_pools",
+        "tags": [
+          "pool"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "string",
+            "default": "name"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "integer",
+            "default": 10
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph_nfs/{fsId}/exports": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "exportId": {
+                        "type": "integer"
+                      },
+                      "host": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "pseudo": {
+                        "type": "string"
+                      },
+                      "tag": {
+                        "type": "null"
+                      },
+                      "accessType": {
+                        "type": "string"
+                      },
+                      "squash": {
+                        "type": "string"
+                      },
+                      "protocols": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "transports": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "fsal": {
+                        "type": "string"
+                      },
+                      "rgwUserId": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "clientBlocks": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 2,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "id": "node4.ses.suse.com:1",
+                    "exportId": 1,
+                    "host": "node4.ses.suse.com",
+                    "path": "/",
+                    "pseudo": "/cephfs/",
+                    "tag": null,
+                    "accessType": "RW",
+                    "squash": "Root",
+                    "protocols": [
+                      "NFSv3",
+                      "NFSv4"
+                    ],
+                    "transports": [
+                      "UDP",
+                      "TCP"
+                    ],
+                    "fsal": "CEPH",
+                    "rgwUserId": null,
+                    "clientBlocks": []
+                  },
+                  {
+                    "id": "node4.ses.suse.com:2",
+                    "exportId": 2,
+                    "host": "node4.ses.suse.com",
+                    "path": "/",
+                    "pseudo": "/admin",
+                    "tag": null,
+                    "accessType": "RW",
+                    "squash": "Root",
+                    "protocols": [
+                      "NFSv3",
+                      "NFSv4"
+                    ],
+                    "transports": [
+                      "UDP",
+                      "TCP"
+                    ],
+                    "fsal": "RGW",
+                    "rgwUserId": "admin",
+                    "clientBlocks": []
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "list nfs exports",
+        "description": "list information of all nfs",
+        "operationId": "GET_exports",
+        "tags": [
+          "nfs"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "string",
+            "default": "path"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "integer",
+            "default": 10
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "exportId": {
+                  "type": "integer"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "pseudo": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "null"
+                },
+                "accessType": {
+                  "type": "string"
+                },
+                "squash": {
+                  "type": "string"
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "fsal": {
+                  "type": "string"
+                },
+                "rgwUserId": {
+                  "type": "null"
+                },
+                "clientBlocks": {
+                  "type": "null"
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "id": "node4.ses.suse.com:3",
+                "exportId": 3,
+                "host": "node4.ses.suse.com",
+                "path": "/test",
+                "pseudo": "/cephfs/test",
+                "tag": null,
+                "accessType": "RW",
+                "squash": "None",
+                "protocols": [
+                  "NFSv3",
+                  "NFSv4"
+                ],
+                "transports": [
+                  "TCP",
+                  "UDP"
+                ],
+                "fsal": "CEPH",
+                "rgwUserId": null,
+                "clientBlocks": null
+              }
+            }
+          }
+        },
+        "summary": "create nfs export",
+        "description": "create nfs export",
+        "operationId": "POST_exports",
+        "tags": [
+          "nfs"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "fsal": {
+                  "type": "string"
+                },
+                "rgwUserId": {
+                  "type": "null"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "null"
+                },
+                "pseudo": {
+                  "type": "string"
+                },
+                "accessType": {
+                  "type": "string"
+                },
+                "squash": {
+                  "type": "string"
+                },
+                "clientBlocks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "host": "node4.ses.suse.com",
+                "fsal": "CEPH",
+                "rgwUserId": null,
+                "path": "/test",
+                "tag": null,
+                "pseudo": "/cephfs/test",
+                "accessType": "RW",
+                "squash": "None",
+                "clientBlocks": [],
+                "protocols": [
+                  "NFSv3",
+                  "NFSv4"
+                ],
+                "transports": [
+                  "TCP",
+                  "UDP"
+                ]
+              }
+            }
+          },
+          {
+            "in": "query",
+            "name": "host",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "/ceph_nfs/{fsId}/exports/{exportId}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "exportId": {
+                  "type": "integer"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "pseudo": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "null"
+                },
+                "accessType": {
+                  "type": "string"
+                },
+                "squash": {
+                  "type": "string"
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "fsal": {
+                  "type": "string"
+                },
+                "rgwUserId": {
+                  "type": "string"
+                },
+                "clientBlocks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "id": "node4.ses.suse.com:1",
+                "exportId": 1,
+                "host": "node4.ses.suse.com",
+                "path": "/",
+                "pseudo": "/cephfs/",
+                "tag": null,
+                "accessType": "RW",
+                "squash": "Root",
+                "protocols": [
+                  "NFSv3",
+                  "NFSv4"
+                ],
+                "transports": [
+                  "UDP",
+                  "TCP"
+                ],
+                "fsal": "CEPH",
+                "rgwUserId": null,
+                "clientBlocks": []
+              }
+            }
+          }
+        },
+        "summary": "list nfs export",
+        "operationId": "GET_export",
+        "description": "list information of specified nfs",
+        "tags": [
+          "nfs"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "exportId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph_nfs/{fsId}/exports/bulk_delete": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "delete nfs exports",
+        "description": "delete nfs exports",
+        "operationId": "DELETE_exports",
+        "tags": [
+          "nfs"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "exportIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "exportIds": [
+                  "node4.ses.suse.com:3"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph/{fsId}/rbdsnaps": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 0,
+                "next": null,
+                "previous": null,
+                "results": []
+              }
+            }
+          }
+        },
+        "summary": "list snapshots",
+        "description": "list information of snapshots\n\n- if given query param 'image_id', list information of snapshots of given image",
+        "operationId": "GET_snapshots",
+        "tags": [
+          "snapshot"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "image_id",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "integer",
+            "default": "name"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "integer",
+            "default": 10
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "snap_id": {
+                  "type": "integer"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "is_protected": {
+                  "type": "boolean"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "children": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "id": "iscsi-images/demo@test",
+                "name": "test",
+                "snap_id": 4,
+                "image": "iscsi-images/demo",
+                "is_protected": false,
+                "size": 1084479242,
+                "timestamp": "2018-12-04T07:41:51",
+                "children": []
+              }
+            }
+          }
+        },
+        "summary": "create snapshot",
+        "description": "create snapshot of an image",
+        "operationId": "POST_snapshot",
+        "tags": [
+          "snapshot"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "image",
+            "type": "string",
+            "description": "name of image to be snapshoted"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string",
+            "description": "name of snapshot to be created"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "image": "iscsi-images/demo",
+                "name": "test"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "null"
+                },
+                "previous": {
+                  "type": "null"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "first_name": {
+                        "type": "string"
+                      },
+                      "last_name": {
+                        "type": "string"
+                      },
+                      "is_active": {
+                        "type": "boolean"
+                      },
+                      "is_staff": {
+                        "type": "boolean"
+                      },
+                      "is_superuser": {
+                        "type": "boolean"
+                      },
+                      "last_login": {
+                        "type": "string"
+                      },
+                      "date_joined": {
+                        "type": "string"
+                      },
+                      "auth_token": {
+                        "type": "object",
+                        "properties": {
+                          "token": {
+                            "type": "string"
+                          },
+                          "createdate": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "profile": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "url": "http://localhost/openattic/api/users/1",
+                    "id": 1,
+                    "username": "openattic",
+                    "email": "",
+                    "first_name": "",
+                    "last_name": "",
+                    "is_active": true,
+                    "is_staff": true,
+                    "is_superuser": true,
+                    "last_login": "2018-12-04T11:29:15.668153",
+                    "date_joined": "2018-11-12T05:15:21.879642",
+                    "auth_token": {
+                      "token": "ff4584b5cfb8688db8715e546a3047870b934186",
+                      "createdate": "2018-11-12T05:15:21.965"
+                    },
+                    "profile": {
+                      "url": "http://localhost/openattic/api/userprofiles/1"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "list users",
+        "description": "list information of all users",
+        "operationId": "GET_users",
+        "tags": [
+          "user"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ordering",
+            "type": "string",
+            "default": "username"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "type": "integer",
+            "default": 10
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_staff": {
+                  "type": "boolean"
+                },
+                "is_superuser": {
+                  "type": "boolean"
+                },
+                "last_login": {
+                  "type": "string"
+                },
+                "date_joined": {
+                  "type": "string"
+                },
+                "auth_token": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "url": "http://localhost/openattic/api/users/4",
+                "id": 4,
+                "username": "test",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "is_active": true,
+                "is_staff": false,
+                "is_superuser": false,
+                "last_login": "2018-12-07T07:56:59.991427",
+                "date_joined": "2018-12-07T07:56:59.991427",
+                "auth_token": {
+                  "token": "Not set yet!"
+                },
+                "profile": {
+                  "url": "http://localhost/openattic/api/userprofiles/4"
+                }
+              }
+            }
+          }
+        },
+        "summary": "create user",
+        "description": "create a user",
+        "operationId": "CRETAE_user",
+        "tags": [
+          "user"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "confirmPassword": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_superuser": {
+                  "type": "boolean"
+                },
+                "is_staff": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "username": "test",
+                "email": "",
+                "password": "test00",
+                "confirmPassword": "test00",
+                "first_name": "",
+                "last_name": "",
+                "is_active": true,
+                "is_superuser": false,
+                "is_staff": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_staff": {
+                  "type": "boolean"
+                },
+                "is_superuser": {
+                  "type": "boolean"
+                },
+                "last_login": {
+                  "type": "string"
+                },
+                "date_joined": {
+                  "type": "string"
+                },
+                "auth_token": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "createdate": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "url": "http://localhost/openattic/api/users/1",
+                "id": 1,
+                "username": "openattic",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "is_active": true,
+                "is_staff": true,
+                "is_superuser": true,
+                "last_login": "2018-12-06T04:23:03.680507",
+                "date_joined": "2018-11-12T05:15:21.879642",
+                "auth_token": {
+                  "token": "ff4584b5cfb8688db8715e546a3047870b934186",
+                  "createdate": "2018-11-12T05:15:21.965"
+                },
+                "profile": {
+                  "url": "http://localhost/openattic/api/userprofiles/1"
+                }
+              }
+            }
+          }
+        },
+        "summary": "list user",
+        "description": "list information of specified user",
+        "operationId": "GET_user",
+        "tags": [
+          "user"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "put": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_staff": {
+                  "type": "boolean"
+                },
+                "is_superuser": {
+                  "type": "boolean"
+                },
+                "last_login": {
+                  "type": "string"
+                },
+                "date_joined": {
+                  "type": "string"
+                },
+                "auth_token": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "url": "http://localhost/openattic/api/users/4",
+                "id": 4,
+                "username": "test",
+                "email": "",
+                "first_name": "ah ha",
+                "last_name": "omg",
+                "is_active": false,
+                "is_staff": false,
+                "is_superuser": false,
+                "last_login": "2018-12-07T07:56:59.991427",
+                "date_joined": "2018-12-07T07:56:59.991427",
+                "auth_token": {
+                  "token": "Not set yet!"
+                },
+                "profile": {
+                  "url": "http://localhost/openattic/api/userprofiles/4"
+                }
+              }
+            }
+          }
+        },
+        "summary": "update user",
+        "description": "edit user",
+        "operationId": "UPDATE_user",
+        "tags": [
+          "user"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                },
+                "is_active": {
+                  "type": "boolean"
+                },
+                "is_staff": {
+                  "type": "boolean"
+                },
+                "is_superuser": {
+                  "type": "boolean"
+                },
+                "last_login": {
+                  "type": "string"
+                },
+                "date_joined": {
+                  "type": "string"
+                },
+                "auth_token": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "password": {
+                  "type": "string"
+                },
+                "confirmPassword": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "url": "http://localhost/openattic/api/users/4",
+                "id": 4,
+                "username": "test",
+                "email": "",
+                "first_name": "ah ha",
+                "last_name": "omg",
+                "is_active": false,
+                "is_staff": false,
+                "is_superuser": false,
+                "last_login": "2018-12-07T07:56:59.991427",
+                "date_joined": "2018-12-07T07:56:59.991427",
+                "auth_token": {
+                  "token": "Not set yet!"
+                },
+                "profile": {
+                  "url": "http://localhost/openattic/api/userprofiles/4"
+                },
+                "password": "test01",
+                "confirmPassword": "test01"
+              }
+            }
+          }
+        ]
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "delete user",
+        "description": "delete a user",
+        "operationId": "DELETE_user",
+        "tags": [
+          "user"
+        ]
+      }
+    },
+    "/ceph/{fsId}/rbdsnaps/{image-name}@{snapshot-name}": {
+      "put": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "snap_id": {
+                  "type": "integer"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "is_protected": {
+                  "type": "boolean"
+                },
+                "size": {
+                  "type": "integer"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "children": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "id": "iscsi-images/demo@test",
+                "name": "test",
+                "snap_id": 4,
+                "image": "iscsi-images/demo",
+                "is_protected": true,
+                "size": 1084479242,
+                "timestamp": "2018-12-04T07:41:51",
+                "children": []
+              }
+            }
+          }
+        },
+        "summary": "protect snapshot",
+        "description": "change the stat of snapshot to 'protected', for the next step of creating image from this snapshot",
+        "operationId": "PROTECT_snapshot",
+        "tags": [
+          "snapshot"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "image",
+            "type": "string",
+            "description": "the name of image, which is used to create this snapshot"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string",
+            "description": "the snapshot name"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "pool": {
+                  "type": "string"
+                },
+                "imagename": {
+                  "type": "string"
+                },
+                "snap": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "is_protected": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "pool": "iscsi-images",
+                "imagename": "demo",
+                "snap": "test",
+                "image": "iscsi-images/demo",
+                "name": "test",
+                "is_protected": true
+              }
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "image-name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "snapshot-name",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            },
+            "examples": {}
+          }
+        },
+        "summary": "delete snapshot",
+        "description": "delete a snapshot",
+        "operationId": "DELETE_snapshot",
+        "tags": [
+          "snapshot"
+        ]
+      }
+    },
+    "/ceph/{fsId}/rbdsnaps/{image-name}/copy": {
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "image-name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph/{fsId}/rbds/{image-name}/copy": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "summary": "copy rbd image",
+        "description": "copy rbd image to another within the same pool\n\n> response unfinished!!!",
+        "operationId": "COPY_rbd",
+        "tags": [
+          "rbd"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "size": {
+                  "type": "integer"
+                },
+                "pool": {
+                  "type": "integer"
+                },
+                "obj_size": {
+                  "type": "integer"
+                },
+                "parent": {
+                  "type": "object",
+                  "properties": {
+                    "pool_name": {
+                      "type": "string"
+                    },
+                    "image_name": {
+                      "type": "string"
+                    },
+                    "snap_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "id": {
+                  "type": "string"
+                },
+                "data_pool": {
+                  "type": "null"
+                },
+                "num_objs": {
+                  "type": "integer"
+                },
+                "block_name_prefix": {
+                  "type": "string"
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "old_format": {
+                  "type": "boolean"
+                },
+                "used_size": {
+                  "type": "null"
+                },
+                "stripe_unit": {
+                  "type": "null"
+                },
+                "stripe_count": {
+                  "type": "null"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "fsid": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "size": 1084479242,
+                "pool": 1,
+                "obj_size": 4194304,
+                "parent": {
+                  "pool_name": "iscsi-images",
+                  "image_name": "demo",
+                  "snap_name": "test"
+                },
+                "id": "iscsi-images/test_cloned",
+                "data_pool": null,
+                "num_objs": 259,
+                "block_name_prefix": "rbd_data.ee66074b0dc51",
+                "features": [
+                  "layering"
+                ],
+                "old_format": false,
+                "used_size": null,
+                "stripe_unit": null,
+                "stripe_count": null,
+                "name": "test_copied_within",
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a"
+              }
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "image-name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph_nfs/{fsId}/exports/{host}/{exportId}": {
+      "put": {
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "application/json": {
+                "id": "node4.ses.suse.com:1",
+                "exportId": 1,
+                "host": "node4.ses.suse.com",
+                "path": "/test_2",
+                "pseudo": "/cephfs/test_2",
+                "tag": null,
+                "accessType": "RW",
+                "squash": "Root",
+                "protocols": [
+                  "NFSv3",
+                  "NFSv4"
+                ],
+                "transports": [
+                  "TCP",
+                  "UDP"
+                ],
+                "fsal": "CEPH",
+                "rgwUserId": null,
+                "clientBlocks": null
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "exportId": {
+                  "type": "integer"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "pseudo": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "null"
+                },
+                "accessType": {
+                  "type": "string"
+                },
+                "squash": {
+                  "type": "string"
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "fsal": {
+                  "type": "string"
+                },
+                "rgwUserId": {
+                  "type": "null"
+                },
+                "clientBlocks": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        },
+        "summary": "update nfs",
+        "operationId": "PUT_nfs",
+        "description": "update path of nfs export",
+        "tags": [
+          "nfs"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "exportId": {
+                  "type": "integer"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "pseudo": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "null"
+                },
+                "accessType": {
+                  "type": "string"
+                },
+                "squash": {
+                  "type": "string"
+                },
+                "fsal": {
+                  "type": "string"
+                },
+                "rgwUserId": {
+                  "type": "null"
+                },
+                "clientBlocks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "fsid": {
+                  "type": "string"
+                },
+                "protocols": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "transports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "id": "node4.ses.suse.com:1",
+                "exportId": 1,
+                "host": "node4.ses.suse.com",
+                "path": "/test_2",
+                "pseudo": "/cephfs/test_2",
+                "tag": null,
+                "accessType": "RW",
+                "squash": "Root",
+                "fsal": "CEPH",
+                "rgwUserId": null,
+                "clientBlocks": [],
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "protocols": [
+                  "NFSv3",
+                  "NFSv4"
+                ],
+                "transports": [
+                  "TCP",
+                  "UDP"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "host",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "exportId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    "/ceph/{fsId}/rbdsnaps/{image-name}@{snapshot-name}/rollback": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "IMPORTANT: This is the reponse of background task, but not the one of normal rollback operation.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "estimated": {
+                  "type": "null"
+                },
+                "result": {
+                  "type": "null"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "created": {
+                  "type": "string"
+                },
+                "last_modified": {
+                  "type": "string"
+                },
+                "percent": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "snap": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "pool": {
+                  "type": "string"
+                },
+                "fsid": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "reponse of task queue": "{\n  \"status\": \"Finished\",\n  \"estimated\": null,\n  \"result\": null,\n  \"id\": 17,\n  \"created\": \"2018-12-07T07:45:07.566735\",\n  \"last_modified\": \"2018-12-07T07:45:12.763978\",\n  \"percent\": 100,\n  \"description\": \"Rollback RBD to Snapshot iscsi-images/demo@test\",\n  \"snap\": \"test\",\n  \"image\": \"demo\",\n  \"pool\": \"iscsi-images\",\n  \"fsid\": \"310caaaa-2d4a-3d24-a3f4-8afd1ca4278a\"\n}"
+            }
+          }
+        },
+        "summary": "rollback rbd",
+        "operationId": "ROLLBACK_rbd",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "fsid",
+                "pool",
+                "imagename",
+                "snap"
+              ],
+              "properties": {
+                "fsid": {
+                  "type": "string"
+                },
+                "pool": {
+                  "type": "string"
+                },
+                "imagename": {
+                  "type": "string"
+                },
+                "snap": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-examples": {
+              "application/json": {
+                "fsid": "310caaaa-2d4a-3d24-a3f4-8afd1ca4278a",
+                "pool": "iscsi-images",
+                "imagename": "demo",
+                "snap": "test"
+              }
+            }
+          }
+        ],
+        "description": "rollback RBD to snapshot",
+        "tags": [
+          "rbd"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "fsId",
+          "in": "path",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "image-name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "snapshot-name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  },
+  "parameters": {
+    "limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "This is how it works.",
+      "required": false,
+      "type": "integer",
+      "maximum": 100
+    },
+    "skip": {
+      "name": "skip",
+      "in": "query",
+      "required": false,
+      "type": "string"
+    }
+  },
+  "definitions": {},
+  "tags": [
+    {
+      "name": "usage"
+    },
+    {
+      "name": "performance",
+      "description": "- IOPS\n- throughout\n- cpu\n- RAM\n- bandwidth\n- time delay\n- ..."
+    },
+    {
+      "name": "status",
+      "description": "status of ceph cluster\n- total volume\n- disk volume\n- pool volume\n- rbd volume\n- etc."
+    },
+    {
+      "name": "user"
+    },
+    {
+      "name": "snapshot"
+    },
+    {
+      "name": "nfs"
+    },
+    {
+      "name": "iscsi"
+    },
+    {
+      "name": "rbd"
+    },
+    {
+      "name": "auth",
+      "description": "login and logout"
+    },
+    {
+      "name": "pool",
+      "description": "informations, operations related to pools"
+    },
+    {
+      "name": "osd"
+    }
+  ],
+  "basePath": "/openattic/api"
+}

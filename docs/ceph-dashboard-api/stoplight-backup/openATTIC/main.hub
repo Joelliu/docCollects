@@ -1,0 +1,179 @@
+{
+  "title": "My Hub",
+  "logo": "https://next.stoplight.io/images/mark-light-bg.png",
+  "header": {
+    "nav": {
+      "left": [],
+      "right": [
+        {
+          "path": "/api-reference",
+          "title": "API Reference"
+        },
+        {
+          "title": "Help",
+          "path": "https://docs.stoplight.io"
+        }
+      ]
+    }
+  },
+  "pages": {
+    "/": {
+      "title": "Welcome to SES REST API documentation",
+      "data": {
+        "blocks": [
+          {
+            "type": "text",
+            "data": "# Welcome to SES REST API documentation!\n\nThis is a quick little starter hub for this project.\n\n1. This project is meant to work with the API running at [http://localhost/openattic/api](http://localhost/openattic/api).\n2. This hub pulls together data from several other sources (like the main.oas2 file in this project) to render its content.\n3. Open the project file explorer by clicking the file icon in the left gutter.\n4. Click through the files to view their editors and make changes. Each file has an extension that indicates its type.\n5. Stoplight currently supports 5 extensions:\n\t- .hub: Technical documentation.\n\t- .oas2: API Design + Modeling.\n\t- .scenarios: API Testing + Orchestration.\n\t- .prism: API Mocking + Validation.\n\t- .md: Snippets of documentation.\n\t- _.oas3: Coming Soon!_\n\n__If you make changes to any of the files, don't forget to click the \"Save\" button, located in the top left of the editors.__"
+          },
+          {
+            "type": "callout",
+            "data": {
+              "title": "Quickstart",
+              "body": "There are various files displayed in the file explorer to the left, organized by type (click file button in gutter if you don't see the list).\n\n1. **Modeling**: Get started with our OAS/Swagger editor.\n2. **Scenarios**: Create API tests (and contract tests!) with our Scenarios editor.\n3. **Prism**: Create different types of servers (mocking, validation, etc) with Prism.\n\n**Bonus**: Connect your files together with references to supercharge them!"
+            }
+          },
+          {
+            "type": "text",
+            "data": "## Testing\n\n- The tests.scenarios in this project leverages the main.oas2 file to power its contract testing.\n- _NOTE_: The todo-partial model in the main.oas2 file intentially includes a required “user” property that will cause the tests to fail. This is because the actual todos.stoplight.io API does not return a user property. Try it out by navigating to the tests.scenarios file and running the collection!\n\n## Modeling Features\n\n- This project includes two OAS2 (Swagger 2) files - common.oas2 and main.oas2.\n- This main.oas2 leverages the JSON Schema allOf property (inheritance), shared parameters (common query string), and shared responses (common error codes).\n- This main.oas2 specification references data defined in the common.oas2 specification. Check out the “user” property in the oA-full model. It references the common.oas2 file in this project, but could easily reference a file in another project. This lets you build up shared libraries of data for your organization.\n- You can quickly send requests to the openATTIC API by clicking the “HTTP Request Maker” tab at the bottom of the modeling editor.\n- While the HTTP Request Maker is open, you can navigate through operations in the editor sidebar to quickly update the request from your OAS specification.\n- If you have prism files in this project, you can select their host to send requests to them instead. Try sending a request to the mock.prism instance, its running a mock API based on this specification!"
+          },
+          {
+            "type": "tabs",
+            "data": {
+              "children": [
+                {
+                  "title": "List Ceph Cluster Information",
+                  "blocks": [
+                    {
+                      "type": "text",
+                      "data": "list information of a ceph cluster"
+                    },
+                    {
+                      "type": "http",
+                      "header": {
+                        "title": "Get Ceph cluster information"
+                      },
+                      "data": {
+                        "url": "http://localhost/openattic/api/ceph",
+                        "method": "get",
+                        "headers": {
+                          "content-type": "application/json"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "title": "JSON Schema",
+                  "blocks": [
+                    {
+                      "type": "text",
+                      "data": "A simple example of a tabbed component, with multiple child blocks (and JSON Schema!)."
+                    },
+                    {
+                      "type": "jsonSchema",
+                      "data": {
+                        "type": "object",
+                        "description": "A random little user object.",
+                        "properties": {
+                          "data": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "username",
+                              "email"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 65000
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string",
+                                "format": "email"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "required": [
+                          "data"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api-reference": {
+      "title": "API Reference",
+      "data": {
+        "children": [
+          {
+            "title": "Introduction",
+            "route": {
+              "path": "/intro"
+            },
+            "data": {
+              "blocks": [
+                {
+                  "type": "text",
+                  "data": "# Introduction\n\nThis API Reference shows how you can pull in OAS2 (Swagger) data that is managed outside of this hub.\n\n- The openATTIC API data is being fetched from the main.oas2 file in this project.\n\nThis makes it easy for other teams or processes (code generation, etc) to update your Open API files. Whenever they are updated, this hub will be updated - easy as pie!"
+                }
+              ]
+            }
+          },
+          {
+            "title": "openATTIC API",
+            "route": {
+              "path": "/oA-api"
+            },
+            "data": {
+              "$ref": "./main.oas2.yml"
+            }
+          },
+          {
+            "title": "Without REST API",
+            "route": {
+              "path": "/command"
+            },
+            "data": {
+              "blocks": [
+                {
+                  "type": "text",
+                  "data": "### Operations without corresponding RESTful API:\n\n- RBD:\n\t- 全克隆卷 (同 snapshot 中的 使用快照创建独立卷 功能)\n\t```shell\n\trbd flatten {pool-name}/{image-name}\n\t```\n- OSD: ([Reference: osd operation manually](http://docs.ceph.com/docs/mimic/rados/operations/add-or-rm-osds/#removing-osds-manual))\n\t- create an osd\n\n\t```shell\n\tceph-deploy osd create --data {data-disk} {node-name}\n\t```\n\t- update/edit an osd\n\t```shell\n\t```\n\t\n\t- delete an osd\n\t\t- [Ref.](http://docs.ceph.com/docs/mimic/rados/operations/add-or-rm-osds/)\n\n- Snapshot:\n\t- 使用快照创建独立卷 (rbd flatten (flatten an image)： remove reference from a child image to parent snapshot)\n\t```shell\n\trbd flatten {pool-name}/{image-name}\n\t```\n\n- Performance:\n\t- list iops of pool\n\t```shell\n\t```\n\t- list throughout of pool\n\t```shell\n\t```\n\t- list cpu usage\n\t```shell\n\t```\n\t- list RAM usage\n\t```shell\n\t```\n\t- list network usage\n\t```shell\n\t```\n\t- list read/write speed of physical disk\n\t```shell\n\t```\n\t- list average time delay of physical disk\n\t```shell\n\tceph osd perf\n\t```\n\t- list iops of rbd\n\t```shell\n\t```\n- Volume+Usage:\n\t- list total usage of cluster\n\t```shell\n\tceph df\n\t```\n\t- list total volume of cluster\n\t```shell\n\tceph df\n\t```\n\t- list usage of pools\n\t```shell\n\tceph df\n\t```\n\t- list volume of pools\n\t```shell\n\tceph df\n\t```\n\t- list usage of disks\n\t```shell\n\tceph osd df\n\t```\n\t- list volume of disks\n\t```shell\n\tceph osd df\n\t```\n\t- list usage of rbds\n\t```shell\n\trbd du {pool-name}/{image-name}\n\t```\n\t- list volume of rbds\n\t```shell\n\trbd info {pool-name}/{image-name} --format json\n\t```\n- Status:\n\t- list status of cluster\n\t```shell\n\tceph status\n\t```\n\t- list status of nodes\n\t```shell\n\tsalt '*' test.ping\n\t```\n\t- list status of disks\n\t```shell\n\tceph osd tree\n\t```\n\n\n#### In a nutshell: \n- osd operation [xx]\n- snapshot flatten [xx]\n- grafana [xx]\n\n#### Reference:\n- [official ceph doc](http://docs.ceph.com/docs/mimic/)\n- [command reference](http://docs.ceph.com/docs/mimic/rados/operations/control/)"
+                }
+              ]
+            }
+          },
+          {
+            "title": "Appendix",
+            "route": {
+              "path": "/appendix"
+            },
+            "data": {
+              "blocks": [
+                {
+                  "type": "text",
+                  "data": "## 标准API设置：\n- 认证：\n```\ncurl -X POST -c cookies.txt http://localhost/openattic/api/auth \\\n        -H \"Accept: application/json\" \\\n         -d username='openattic' \\\n         -d password='openattic'\n```\n- 使用：\n```\ncurl -X GET -b cookies.txt http://localhost/openattic/api/ceph/3bcbdfb2-1066-3e2c-bac1-80a5d11c91d6/pools\n```\n- 注销:\n```\nrm -rf cookies.txt\n```\n\n## Salt API配置\n- 在admin节点查看SALT的配置信息：/etc/sysconfig/openattic\n- 例如：\n```\nSALT_API_HOST=\"admin.ses.suse.de\"\nSALT_API_PORT=\"8000\"\nSALT_API_EAUTH=\"sharedsecret\"\nSALT_API_USERNAME=\"admin\"\nSALT_API_SHARED_SECRET=\"dcb1f300-2ff4-4377-945d-29e0b203fa29\"\n```\n\n认证login\n```\ncurl -sSk http://localhost:8000/login \\\n          -H 'Accept: application/x-yaml' \\\n          -d username=admin \\\n          -d sharedsecret='dcb1f300-2ff4-4377-945d-29e0b203fa29' \\\n          -d eauth='sharedsecret'\n```\n\n测试是否成功：\n```\ncurl -sSk http://localhost:8000 \\\n          -H 'Accept: application/x-yaml' \\\n          -H 'X-Auth-Token: 0a59c71bb56cf38ce55c7a24ebb341d10ec63ec6'\\\n          -d client=local \\\n          -d tgt='*' \\\n          -d fun=test.ping\n```\n\n```\ncurl -sSk http://localhost:8000 \\\n    -H 'Accept: application/json' \\\n    -H 'X-Auth-Token: f71772dbf28a1e24aabb8d30ab9506bdf5c46f36' \\\n    -d client='local' \\\n    -d tgt='admin.ses.suse.de' \\\n    -d fun='cmd.run' \\\n    -d arg='ceph -s'\n```\n\n注销：\n```\ncurl -sSk http://localhost:8000/logout \\\n    -H 'Accept: application/json' \\\n    -H 'X-Auth-Token: 0a59c71bb56cf38ce55c7a24ebb341d10ec63ec6'\n```\n\n或者直接使用：\n```\ncurl -sS http://localhost:8000/run \\\n    -H 'Accept: application/x-yaml' \\\n    -d client='local' \\\n    -d tgt='admin.ses.suse.de' \\\n    -d fun='cmd.run' \\\n    -d arg='ceph -s' \\\n    -d username='admin' \\\n    -d sharedsecret='dcb1f300-2ff4-4377-945d-29e0b203fa29' \\\n    -d eauth='sharedsecret'\n```\n\n## 监控API配置\n\n规范如下：\n#### Range queries\n\nThe following endpoint evaluates an expression query over a range of time:\n```\nGET /api/v1/query_range\n```\nURL query parameters:\n- query=<string>: Prometheus expression query string.\n- start=<rfc3339 | unix_timestamp>: Start timestamp.\n- end=<rfc3339 | unix_timestamp>: End timestamp.\n- step=<duration>: Query resolution step width.\n- timeout=<duration>: Evaluation timeout. Optional. Defaults to and is capped by the value of the -query.timeout flag.\n\nThe data section of the query result has the following format:\n```\n{\n  \"resultType\": \"matrix\",\n  \"result\": <value>\n}\n```\nFor the format of the <value> placeholder, see the following range-vector result format.\n\n#### Range vectors:\n\nRange vectors are returned as result type matrix. The corresponding result property has the following format:\n```\n[\n  {\n    \"metric\": { \"<label_name>\": \"<label_value>\", ... },\n    \"values\": [ [ <unix_time>, \"<sample_value>\" ], ... ]\n  },\n  ...\n]\n```\n\nThe following example evaluates the expression up over a 30-second range with a query resolution of 15 seconds.\n\n```\n$ curl 'http://localhost:9090/api/v1/query_range?query=up&start=2015-07-01T20:10:30.781Z&end=2015-07-01T20:11:00.781Z&step=15s'\n```\n```\n{\n   \"status\" : \"success\",\n   \"data\" : {\n      \"resultType\" : \"matrix\",\n      \"result\" : [\n         {\n            \"metric\" : {\n               \"__name__\" : \"up\",\n               \"job\" : \"prometheus\",\n               \"instance\" : \"localhost:9090\"\n            },\n            \"values\" : [\n               [ 1435781430.781, \"1\" ],\n               [ 1435781445.781, \"1\" ],\n               [ 1435781460.781, \"1\" ]\n            ]\n         },\n         {\n            \"metric\" : {\n               \"__name__\" : \"up\",\n               \"job\" : \"node\",\n               \"instance\" : \"localhost:9091\"\n            },\n            \"values\" : [\n               [ 1435781430.781, \"0\" ],\n               [ 1435781445.781, \"0\" ],\n               [ 1435781460.781, \"1\" ]\n            ]\n         }\n      ]\n   }\n}\n\n```\n"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
