@@ -202,12 +202,17 @@
                6. [数据库过大](#数据库过大)
          4. [OSD 故障排查](#osd-故障排查)
             1. [收集 OSD 数据](#收集-osd-数据)
-            2. [停止数据向外重平衡](#停止数据向外重平衡)
-            3. [常见的 OSD 问题](#常见的-osd-问题)
-               1. [OSD 没运行](#osd-没运行)
-               2. [OSD 满了](#osd-满了)
-               3. [OSD 龟速或无响应](#osd-龟速或无响应)
-               4. [震荡的 OSD](#震荡的-osd)
+            2. [常见的 OSD 问题](#常见的-osd-问题)
+               1. [Full OSDs](#full-osds)
+               2. [Nearfull OSDs](#nearfull-osds)
+               3. [一个或多个 OSD Down 掉](#一个或多个-osd-down-掉)
+               4. [Flapping 抖动 OSD](#flapping-抖动-osd)
+               5. [Slow Requests, and Requests are Blocked](#slow-requests-and-requests-are-blocked)
+            3. [Stopping and Starting Rebalancing](#stopping-and-starting-rebalancing)
+            4. [安装 OSD 数据分区](#安装-osd-数据分区)
+            5. [更换 OSD 驱动器](#更换-osd-驱动器)
+            6. [Increasing the PID count](#increasing-the-pid-count)
+            7. [从完整集群中删除数据](#从完整集群中删除数据)
          5. [PG（归置组）故障排查](#pg归置组故障排查)
             1. [PG 无法达到 CLEAN 状态](#pg-无法达到-clean-状态)
             2. [卡住的 PGs](#卡住的-pgs)
@@ -5101,261 +5106,686 @@ iostat -x
 dmesg | grep scsi
 ```
 
-##### 停止数据向外重平衡
-
-你得周期性地对集群的子集进行维护，或解决某个故障域的问题（如某个机架）。如果你不想在停机维护 OSD 时让 CRUSH 自动重均衡，首先设置集群的 noout 标志：
-
-```sh
-ceph osd set noout
-```
-
-设置了 noout 后，你就可以停机维护失败域内的 OSD 了。
-
-```sh
-stop ceph-osd id={num}
-```
-
-注意：在定位某故障域内的问题时，停机的 OSD 内的 PG 状态会变为 degraded 。
-
-维护结束后，重启 OSD 。
-
-```sh
-start ceph-osd id={num}
-```
-
-最后，解除 noout 标志。
-
-```sh
-ceph osd unset noout
-```
-
 ##### 常见的 OSD 问题
 
-###### OSD 没运行
+下表列出了`ceph health detail`命令返回或包含在 Ceph 日志中的最常见错误消息。
 
-通常情况下，简单地重启 ceph-osd 进程就可以让它重回集群并恢复。
+与 OSD 相关的错误消息
 
-**OSD 起不来**
+|                   Error message                   |               state                |
+| ---------------------------------------------------------------------- | ----------------------------------------- |
+| `full osds`                                    | HEALTH_ERR      |
+| `nearfull osds`                        | HEALTH_WARN |
+| `osds are down`                        | HEALTH_WARN |
+| `requests are blocked` | HEALTH_WARN |
+| `slow requests`                        | HEALTH_WARN |
 
-如果你重启了集群，但其中一个 OSD 起不来，依次检查：
+与 OSD 相关的 Ceph 日志中的常见错误消息
 
-- 配置文件： 如果你新装的 OSD 不能启动，检查下配置文件，确保它符合规定（比如 host 而非 hostname ，等等）。
+|                                                    Error message                                                     |           Log file           |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| `heartbeat_check: no reply from osd.X`                 | Main cluster log |
+| `wrongly marked me down`                                                              | Main cluster log |
+| `osds have slow requests`                                                           | Main cluster log |
+| `FAILED assert(!m_filestore_fail_eio)`                 | OSD log                  |
+| `FAILED assert(0 == "hit suicide timeout")` | OSD log                  |
 
-- 检查路径： 检查配置文件的路径，以及 OSD 的数据和日志分区路径。如果你分离了 OSD 的数据和日志分区、而配置文件和实际挂载点存在出入，启动 OSD 时就可能失败。如果你想把日志存储于一个块设备，应该为日志硬盘分区并为各 OSD 分别指定一个分区。
+###### Full OSDs
 
-- 检查最大线程数： 如果你的节点有很多 OSD ，也许就会触碰到默认的最大线程数限制（如通常是 32k 个），尤其是在恢复期间。你可以用 sysctl 增大线程数，把最大线程数更改为支持的最大值（即 4194303 ），看看是否有用。例如：
-
-```sh
-sysctl -w kernel.pid_max=4194303
-```
-
-如果增大最大线程数解决了这个问题，你可以把此配置 kernel.pid_max 写入配置文件 /etc/sysctl.conf，使之永久生效，例如：
-
-```txt
-kernel.pid_max = 4194303
-```
-
-- 内核版本： 确认你使用的内核版本和发布版本。 Ceph 默认依赖一些第三方工具，这些工具可能有缺陷或者与特定发布版和/或内核版本冲突（如 Google perftools ）。检查下操作系统推荐表，确保你已经解决了内核相关的问题。
-
-- 段错误： 如果有了段错误，提高日志级别（如果还没提高），再试试。如果重现了，联系 ceph-devel 邮件列表并提供你的配置文件、monitor 输出和日志文件内容。
-
-**OSD 失败**
-
-当 ceph-osd 挂掉时，monitor 可通过活着的 ceph-osd 了解到此情况，并通过 ceph health 命令报告：
+`ceph health detail`  命令返回类似于以下内容的错误消息：
 
 ```sh
-ceph health
-HEALTH_WARN 1/3 in osds are down
+HEALTH_ERR 1 full osds
+osd.3 is full at 95%
 ```
 
-特别地，有 ceph-osd 进程标记为 in 且 down 的时候，你也会得到警告。你可以用下面的命令得知哪个 ceph-osd 进程挂了：
+**这意味着什么**
+
+Ceph 可防止客户端在整个 OSD 节点上执行 I/O 操作，以避免丢失数据。`HEALTH_ERR full osds` 当集群达到 `mon_osd_full_ratio` 参数设置的容量时，它将返回消息。默认情况下，此参数设置为0.95，即95％的集群容量。
+
+**解决方式**
+
+确定存储使用的百分比（`%RAW USED`）：
 
 ```sh
-ceph health detail
-HEALTH_WARN 1/3 in osds are down
-osd.0 is down since epoch 23, last address 192.168.106.220:6800/11080
+# ceph df
 ```
 
-如果有硬盘失败或其它错误使 ceph-osd 不能正常运行或重启，将会在日志文件 /var/log/ceph/ 里输出一条错误信息。
+如果 `%RAW USED` 超过 70-75％，你可以：
 
-如果守护进程因心跳失败、或者底层核心文件系统无响应而停止，查看 dmesg 获取硬盘或者内核错误。
+- 删除不必要的数据，这是避免生产停止的短时间的解决方案。有关详细信息，请参见【从完整集群中删除数据】部分内容。
+- 通过添加新的 OSD 节点来扩展集群。
 
-如果是软件错误（失败的断言或其它意外错误），应该向 ceph-devel 邮件列表报告。
-###### OSD 满了
 
-Ceph 不允许你向满的 OSD 写入数据，以免丢失数据。在运行着的集群中，你应该能收到集群空间将满的警告。 mon osd full ratio 默认为 0.95 ，或达到 95% 的空间使用率时它将阻止客户端写入数据。 mon osd nearfull ratio 默认为 0.85 ，也就是说达到容量的 85% 时它会产生健康警告。
+###### Nearfull OSDs
 
-满载集群问题一般产生于测试小型 Ceph 集群上如何处理 OSD 失败时。当某一节点使用率较高时，集群能够很快掩盖将满和占满率。如果你在测试小型集群上的 Ceph 如何应对 OSD 失败，应该保留足够的可用磁盘空间，然后试着临时降低 mon osd full ratio 和 mon osd nearfull ratio 值。
-
-ceph health 会报告将满的 ceph-osds ：
+`ceph health detail` 命令返回类似于以下内容的错误消息：
 
 ```sh
-ceph health
 HEALTH_WARN 1 nearfull osds
 osd.2 is near full at 85%
 ```
 
-或者：
+**这意味着什么**
+
+`nearfull osds` 当集群达到 `mon osd nearfull ratio defaults` 参数设置的容量时，Ceph 返回消息。默认情况下，此参数设置为 `0.85` 占集群容量的85％。
+
+Ceph 以最佳方式分配基于 CRUSH 层次结构的数据，但不能保证完全平均分配。数据分布不均匀和 `nearfull osds` 消息的主要原因是：
+
+- OSD 在集群中的 OSD 节点之间不平衡。也就是说，一些 OSD 节点承载的数据明显多于其他 OSD 节点，或者 CRUSH 映射中某些 OSD 的权重不足以满足其容量。
+- 根据 OSD 的数量，用例，每个 OSD 的目标 PG 和 OSD 利用率，放置组（PG）数目不正确。
+- 集群使用不适当的 CRUSH 可调参数。
+- OSD 的后端存储空间几乎已满。
+
+**解决方式**
+
+   1. 验证 PG 数目是否足够，并在需要的时候增加它。
+
+   2. 验证您是否使用对集群版本最佳的 CRUSH 可调参数，如果不是则调整它们。
+
+   3. 按利用率更改 OSD 的权重。
+
+   4. 确定 OSD 使用的磁盘上剩余的空间。
+
+        a. 查看 OSD 使用的空间大小：
+
+        ```sh
+        #ceph osd df
+        ```
+
+        b. 查看 OSD 在特定节点上使用的空间大小。使用包含 `nearful` OSD 的节点中的以下命令：
+
+        ```sh
+         $ df -h
+        ```
+
+        c. 如果需要，请添加新的 OSD 节点。
+
+###### 一个或多个 OSD Down 掉
+
+运行 `ceph health` 命令返回类似于以下错误：
 
 ```sh
-ceph health
-HEALTH_ERR 1 nearfull osds, 1 full osds
-osd.2 is near full at 85%
-osd.3 is full at 97%
+HEALTH_WARN 1/3 in osds are down
 ```
 
-处理这种情况的最好方法就是在出现 near full 告警时尽快增加新的 ceph-osd ，这允许集群把数据重分布到新 OSD 里。
+**这意味着什么**
 
-如果因满载而导致 OSD 不能启动，你可以试着删除那个 OSD 上的一些数据。但是这时有个问题，当一个 OSD 使用比例达到 95% 时，集群将不接受任何 Ceph Client 端的读写数据的请求。这时 rbd rm 删除命令将不会得到响应。
+`ceph-osd` 由于可能的服务故障或与其他 OSD 通信的问题， 其中一个进程不可用。结果，幸存的`ceph-osd` 守护进程向监视器 mon 报告了此失败。
 
-让集群能够读写是首先要做的事情。最容易想到的就是调高 mon osd full ratio 和 mon osd nearfull ratio 值，但是对于生产环境，一旦调整这个全局比例，可能会导致整个集群的数据都会动起来，引发更多的数据迁移。因此另一种折衷方法就是单独调整已满 OSD 的 near full 和 full 比例；也可以使用调低 OSD 的 crush weight 的方法，使已满 OSD 上的数据迁移一部分出去。
+如果 `ceph-osd` 守护程序未运行，则基础 OSD 驱动器或文件系统已损坏，或者某些其他错误（例如缺少密钥环 keyring）阻止守护程序启动。
 
- 调整单个 osd 的比例
+在大多数情况下，网络问题会导致 `ceph-osd` 守护程序运行但仍标记为的情况 `down` 。
+
+**解决方式**
+
+1. 确定哪个 OSD 是 `down`：
 
 ```sh
-ceph tell osd.id injectargs '--mon-osd-full-ratio .98'
-ceph tell osd.id injectargs '--mon-osd-full-ratio 0.98'
+ #ceph health detail
+
+ HEALTH_WARN 1/3 in osds are down
+    osd.0 is down since epoch 23, last address 192.168.106.220:6800/11080
 ```
 
- 调整 osd 的 crush weight 值
+2. 尝试重新启动 `ceph-osd` 守护程序：
 
 ```sh
-ceph osd crush reweight osd.id {a-little-lower-weight-value}
+ systemctl restart ceph-osd@<OSD-number>
 ```
-###### OSD 龟速或无响应
 
-一个反复出现的问题是 OSD 龟速或无响应。在深入性能问题前，你应该先确保不是其他故障。例如，确保你的网络运行正常、且 OSD 在运行，还要检查 OSD 是否被恢复流量拖住了。
-
-Tip： 较新版本的 Ceph 能更好地处理恢复，可防止恢复进程耗尽系统资源而导致 up 且 in 的 OSD 不可用或响应慢。
-
-**网络问题**
-
-Ceph 是一个分布式存储系统，所以它依赖于网络来互联 OSD 们、复制对象、从错误中恢复和检查心跳。网络问题会导致 OSD 延时和震荡（反复经历 up and down，详情可参考下文中的相关小节） 。
-
-确保 Ceph 进程和 Ceph 依赖的进程已建立连接和/或在监听。
+替换 `<OSD-number>` 为 OSD 的 ID `down`，例如：
 
 ```sh
-netstat -a | grep ceph
-netstat -l | grep ceph
-sudo netstat -p | grep ceph
+ #systemctl restart ceph-osd@0
 ```
 
-检查网络统计信息。
+ a. 如果您无法启动 `ceph-osd`，请按照下列步骤的 `ceph-osd` 守护进程无法启动。
+ b. 如果您能够启动 `ceph-osd`，但是它被标记为 `down`，请去掉标记 `n`。
+
+**该 `ceph-osd` 守护程序无法启动**
+
+1. 如果你的节点包含多个 OSD（通常多于12个），请验证默认的最大线程数（PID 数）是否足够。
+
+2. 验证 OSD 数据和日志 journal 分区是否正确：
 
 ```sh
-netstat -s
+ #ceph-disk list
+  ...
+
+ /dev/vdb :
+    /dev/vdb1 ceph data, prepared
+    /dev/vdb2 ceph journal
+  /dev/vdc :
+    /dev/vdc1 ceph data, active, cluster ceph, osd.1, journal /dev/vdc2
+    /dev/vdc2 ceph journal, for /dev/vdc1
+  /dev/sdd1 :
+    /dev/sdd1 ceph data, unprepared
+    /dev/sdd2 ceph journal
 ```
 
-**驱动器配置**
+使用 ceph-disk 查看磁盘状态，已经安装的分区标记为 `active`，但如果是分区 `prepared`，请安装它。
 
-一个存储驱动器应该只用于一个 OSD 。如果有其它进程共享驱动器，顺序读写吞吐量会成为瓶颈，包括日志、操作系统、monitor 、其它 OSD 和非 Ceph 进程。
+3. 如果您收到 `ERROR: missing keyring, cannot use cephx for authentication` 错误消息，则 OSD 是缺少 keyring 认证。
 
-Ceph 在日志记录完成之后才会确认写操作，所以使用 ext4 或 XFS 文件系统时高速的 SSD 对降低响应延时很有吸引力。与之相比， btrfs 文件系统可以同时读写日志和数据分区。
+4. 如果收到 `ERROR: unable to open OSD superblock on /var/lib/ceph/osd/ceph-1` 错误消息，则` ceph-osd` 守护程序无法读取基础文件系统。
 
-注意： 给驱动器分区并不能改变总吞吐量或顺序读写限制。把日志分离到单独的分区可能有帮助，但最好是另外一块硬盘的分区。
+5. 检查相应的日志文件以确定失败的原因。默认情况下，Ceph 将日志文件存储在 `/var/log/ceph/` 目录中。
 
-**扇区损坏 / 碎片化硬盘**
+        a. 一个 `EIO` 类似下面的一个错误消息表示基础磁盘的故障：
 
-检修下硬盘是否有坏扇区和碎片。这会导致总吞吐量急剧下降。
+        ```sh
+        FAILED断言（！m_filestore_fail_eio || r！= -5）
+        ```
 
-**MON 和 OSD 共存**
+        要解决此问题，请更换基础OSD磁盘。
 
-Monitor 通常是轻量级进程，但它们会频繁调用 fsync() ，这会妨碍其它工作负载，特别是 Mon 和 OSD 共享驱动器时。另外，如果你在 OSD 主机上同时运行 Mon，遭遇的性能问题可能和这些相关：
+        b. 如果日志包含任何其他`FAILED assert`错误（例如以下错误），请详细查看日志。
 
-- 运行较老的内核（低于 3.0 ）
-- Argonaut 版运行在老的 glibc 之上
-- 运行的内核不支持 syncfs(2) 系统调用
+        ```sh
+         FAILED断言（0 ==“击中自杀超时”）
+        ```
 
-在这些情况下，同一主机上的多个 OSD 会相互拖垮对方。它们经常导致爆炸式写入。
-
-**进程共存**
-
-共用同一套硬件、并向 Ceph 写入数据的进程（像基于云的解决方案、虚拟机和其他应用程序）会导致 OSD 延时大增。一般来说，我们建议用单独的主机跑 Ceph 、其它主机跑其它进程。实践证明把 Ceph 和其他应用程序分开可提高性能、并简化故障排除和维护。
-
-**日志记录级别**
-
-如果你为追踪某问题提高过日志级别，结束后又忘了调回去，这个 OSD 将向硬盘写入大量日志。如果你想始终保持高日志级别，可以考虑给默认日志路径（即 /var/log/ceph/$cluster-$name.log ）挂载一个单独的硬盘。
-
-**恢复限流**
-
-根据你的配置， Ceph 可以降低恢复速度来维持性能，否则它会加快恢复速度而影响 OSD 的性能。检查下 OSD 是否正在恢复。
-
-**内核版本**
-
-检查下你在用的内核版本。较老的内核也许没有反合能提高 Ceph 性能的代码。
-
-**内核与 SYNCFS 问题**
-
-试试在一个主机上只运行一个 OSD ，看看能否提升性能。老内核未必支持有 syncfs(2) 系统调用的 glibc 。
-
-**文件系统问题**
-
-当前，我们推荐基于 xfs 部署集群。 btrfs 有很多诱人的功能，但文件系统内的缺陷可能会导致性能问题。我们不推荐使用 ext4 ，因为 xattr 大小的限制破坏了对长对象名的支持（ RGW 需要）。
-
-**内存不足**
-
-我们建议为每 OSD 进程规划 1GB 内存。你也许注意到了，通常情况下 OSD 仅会使用一小部分（如 100 - 200MB ）。你也许想用这些空闲内存跑一些其他应用，如虚拟机等等。然而当 OSD 进入恢复状态时，其内存利用率将激增。如果没有足够的可用内存，此 OSD 的性能将会明显下降。
-OLD REQUESTS 或 SLOW REQUESTS
-
-如果某 ceph-osd 守护进程对一请求响应很慢，它会生成日志消息来抱怨请求耗费的时间过长。默认警告阀值是 30 秒，可以通过 osd op complaint time 选项来配置。这种情况发生时，集群日志会收到这些消息。
-
-很老的版本抱怨 “old requests” ：
+6. 检查系统 `dmesg` 日志输出以查找基础文件系统或磁盘的错误：
 
 ```sh
-osd.0 192.168.106.220:6800/18813 312 : [WRN] old request osd_op(client.5099.0:790 fatty_26485_object789 [write 0~4096] 2.5e54f643) v4 received at 2012-03-06 15:42:56.054801 currently waiting for sub ops
+$ dmesg
 ```
 
-较新版本的 Ceph 抱怨 “slow requests” ：
+    a. 类似于以下 `error -5` 错误消息表示底层 XFS 文件系统的损坏。
+
+    ```txt
+    xfs_log_force: error -5 returned
+    ```
+
+    b. 如果 `dmesg` 输出包含任何 `SCSI error` 错误消息，则查看磁盘物理连接情况。
+    c. 或者，如果您无法修复基础文件系统，请更换 OSD 驱动器。
+
+
+7. 如果 OSD 出现分段故障（如下所示），则查看详细的启动情况。
 
 ```txt
-{date} {osd.num} [WRN] 1 slow requests, 1 included below; oldest blocked for > 30.005692 secs
-{date} {osd.num}  [WRN] slow request 30.005692 seconds old, received at {date-time}: osd_op(client.4240.0:8 benchmark_data_ceph-1_39426_object7 [write 0~4194304] 0.69848840) v4 currently waiting for subops from [610]
+Caught signal (Segmentation fault)
 ```
 
-可能的原因有：
+**在 `ceph-osd` 正在运行，但仍标记为 `down`**
 
-- 坏驱动器（查看 dmesg 输出）
-- 内核文件系统缺陷（查看 dmesg 输出）
-- 集群过载（检查系统负载、 iostat 等等）
-- ceph-osd 守护进程的 bug
+检查相应的日志文件以确定失败的原因。默认情况下，Ceph将日志文件存储在`/var/log/ceph/`目录中。
 
-可能的解决方法：
+如果日志包含类似于以下内容的错误消息，请参见【Flapping OSDs】部分内容。
 
-- 从 Ceph 主机分离 VM 云解决方案
-- 升级内核
-- 升级 Ceph
-- 重启 OSD
+```txt
+wrongly marked me down
+heartbeat_check: no reply from osd.2 since back
+```
 
-###### 震荡的 OSD
+###### Flapping 抖动 OSD
 
-我们建议同时部署 public（前端）网络和 cluster（后端）网络，这样能更好地满足对象复制的网络性能需求。另一个优点是你可以运营一个不连接互联网的集群，以此避免某些拒绝服务攻击。 OSD 们互联和检查心跳时会优选 cluster（后端）网络。
-
-然而，如果 cluster（后端）网络失败、或出现了明显的延时，同时 public（前端）网络却运行良好， OSD 目前不能很好地处理这种情况。这时 OSD 们会向 monitor 报告邻居 down 了、同时报告自己是 up 的，我们把这种情形称为震荡（ flapping ）。
-
-如果有原因导致 OSD 震荡（反复地被标记为 down ，然后又 up ），你可以强制 monitor 停止这种震荡状态：
+`ceph -w | grep osds` 命令显示的 OSD 在短时间内反复 up 与 down：
 
 ```sh
-ceph osd set noup      # prevent OSDs from getting marked up
-ceph osd set nodown    # prevent OSDs from getting marked down
+# ceph -w | grep osds
 ```
 
-这些标记记录在 osdmap 数据结构里：
+```txt
+2017-04-05 06:27:20.810535 mon.0 \[INF\] osdmap e609: 9 osds: 8 up, 9 in
+
+2017-04-05 06:27:24.120611 mon.0 \[INF\] osdmap e611: 9 osds: 7 up, 9 in
+
+2017-04-05 06:27:25.975622 mon.0 \[INF\] HEALTH_WARN; 118 pgs stale; 2/9 in osds are down
+
+2017-04-05 06:27:27.489790 mon.0 \[INF\] osdmap e614: 9 osds: 6 up, 9 in
+
+2017-04-05 06:27:36.540000 mon.0 \[INF\] osdmap e616: 9 osds: 7 up, 9 in
+
+2017-04-05 06:27:39.681913 mon.0 \[INF\] osdmap e618: 9 osds: 8 up, 9 in
+
+2017-04-05 06:27:43.269401 mon.0 \[INF\] osdmap e620: 9 osds: 9 up, 9 in
+
+2017-04-05 06:27:54.884426 mon.0 \[INF\] osdmap e622: 9 osds: 8 up, 9 in
+
+2017-04-05 06:27:57.398706 mon.0 \[INF\] osdmap e624: 9 osds: 7 up, 9 i
+
+2017-04-05 06:27:59.669841 mon.0 \[INF\] osdmap e625: 9 osds: 6 up, 9 in
+
+2017-04-05 06:28:07.043677 mon.0 \[INF\] osdmap e628: 9 osds: 7 up, 9 in
+
+2017-04-05 06:28:10.512331 mon.0 \[INF\] osdmap e630: 9 osds: 8 up, 9 in
+
+2017-04-05 06:28:12.670923 mon.0 \[INF\] osdmap e631: 9 osds: 9 up, 9 in
+```
+
+此外，Ceph日志包含类似于以下内容的错误消息：
+
+```txt
+2016-07-25 03:44:06.510583 osd.50 127.0.0.1:6801/149046 18992 : cluster [WRN] map e600547 wrongly marked me down
+
+2016-07-25 19:00:08.906864 7fa2a0033700 -1 osd.254 609110 heartbeat_check: no reply from osd.2 since back 2016-07-25 19:00:07.444113 front 2016-07-25 18:59:48.311935 (cutoff 2016-07-25 18:59:48.906862)
+```
+
+**这意味着什么**
+
+找出 OSD 反复 flapping 的主要原因：
+
+- 某些集群操作（例如清理或恢复）会花费异常的时间，例如，如果您对具有大索引或大型放置组的对象执行这些操作。通常，在这些操作完成之后，flapping osd 问题会解决。
+- 底层物理硬件的问题。在这种情况下，该 `ceph health detail` 命令也会返回 `slow requests` 错误消息。
+- 网络问题。
+
+
+当公共（前端）网络以最佳方式运行时，如果集群（后端）网络出现故障或显着延迟时，OSD 则会无法很好地处理这种情况。
+
+OSD 使用集群网络相互发送心跳包以通知它们是 `up` 和 `in` 状态。如果集群网络无法正常工作，则 OSD 无法发送和接收心跳包。因此，他们互相报告为 `down` 状态，同时将自己标记为 `up`。
+
+Ceph 配置文件中的以下参数会影响此行为：
+
+
+|                                 Parameter                                  |                                                        Description                                                        | Default value |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `osd_heartbeat_grace_time`       | 在报告OSD `down` 与监视器之前，OSD 等待心跳包返回多长时间。  | 20 seconds     |
+| `mon_osd_min_down_reporters` | 在监视器将 OSD 标记 为 Down 之前，有多少 OSD 必须报告另一个 OSD `down`   | 1                             |
+| `mon_osd_min_down_reports`       | 在监视器将 OSD 标记 为 Down 之前，必须报告 OSD 的Down 次数      | 3                             |
+
+此表显示在默认配置中，mon 标记 OSD，就`down`好像只有一个 OSD 制作了关于第一个 OSD 的三个不同报告 `down`。在某些情况下，如果一个主机遇到网络问题，整个集群可能会遇到抖动的 OSD。这是因为驻留在主机上的 OSD 将报告集群中的其他 OSD `down`。
+
+**解决方式**
+
+1. `ceph health detail` 再次检查命令的输出。如果它包含 `slow requests` 错误消息，请参见【Slow Requests, and Requests are Blocked】部分内容，以获取有关如何解决此问题的详细信息。
 
 ```sh
-ceph osd dump | grep flags
-flags no-up,no-down
+# ceph health detail
+HEALTH_WARN 30 requests are blocked > 32 sec; 3 osds have slow requests
+30 ops are blocked > 268435 sec
+1 ops are blocked > 268435 sec on osd.11
+1 ops are blocked > 268435 sec on osd.18
+28 ops are blocked > 268435 sec on osd.39
+3 osds have slow requests
 ```
 
-可用下列命令清除标记：
+2. 确定哪些 OSD 被标记为 `down` 以及它们在哪些节点上：
 
 ```sh
-ceph osd unset noup
-ceph osd unset nodown
+# ceph osd tree | grep down
 ```
 
-Ceph 还支持另外两个标记 noin 和 noout ，它们可防止正在启动的 OSD 被标记为 in （可以分配数据），或被误标记为 out （不管 mon osd down out interval 的值是多少）。
+3. 在包含拍打 OSD 的节点上，排除故障并修复任何网络问题。
 
-注意： noup 、 noout 和 nodown 从某种意义上说是临时的，一旦标记被清除了，被它们阻塞的动作短时间内就会发生。另一方面， noin 标记阻止 OSD 启动后加入集群，但其它守护进程都维持原样。
+4.或者，您可以临时强制标记 osd 为 noup，nodown：
+
+```sh
+# ceph osd set noup
+# ceph osd set nodown
+```
+
+注意：使用 `noup` 和 `nodown` 标志不能从根本上解决问题，只能防止OSD抖动。
+
+###### Slow Requests, and Requests are Blocked
+
+该 `ceph-osd` 守护进程是缓慢的，以响应请求和 `ceph health detail` 命令返回类似于以下之一的错误消息：
+
+```txt
+HEALTH_WARN 30 requests are blocked > 32 sec; 3 osds have slow requests
+30 ops are blocked > 268435 sec
+1 ops are blocked > 268435 sec on osd.11
+1 ops are blocked > 268435 sec on osd.18
+28 ops are blocked > 268435 sec on osd.39
+3 osds have slow requests
+```
+
+此外，Ceph日志包含类似于以下内容的错误消息：
+
+```txt
+2015-08-24 13:18:10.024659 osd.1 127.0.0.1:6812/3032 9 : cluster [WRN] 6 slow requests, 6 included below; oldest blocked for > 61.758455 secs
+
+2016-07-25 03:44:06.510583 osd.50 [WRN] slow request 30.005692 seconds old, received at {date-time}: osd_op(client.4240.0:8 benchmark_data_ceph-1_39426_object7 [write 0~4194304] 0.69848840) v4 currently waiting for subops from [610]
+```
+
+**这意味着什么**
+
+每个具有慢请求的 OSD，其不能在由 `osd_op_complaint_time` 参数定义的时间内服务队列中的每秒 I/O 操作（IOPS）。默认情况下，此参数设置为 30 秒。
+
+OSD 请求缓慢的主要原因是：
+
+- 底层硬件的问题，例如磁盘驱动器，主机，机架或网络交换机。
+- 网络问题。这些问题通常与 flapping OSD 有关。
+- 系统负载。
+
+下表显示了慢速请求的类型。使用 `dump_historic_ops administration socket` 命令确定慢速请求的类型。
+
+|                          Slow request type                          |                                         Description                                         |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `waiting for rw locks`                       | OSD 正在等待获取操作的放置组 pg 的锁定。 |
+| `waiting for subops`                              | OSD 正在等待副本 OSD 将操作应用于日志。 |
+| `no flag points reached`                 | OSD 没有达到任何重大操作点要求。                     |
+| `waiting for degraded object` | OSD 尚未复制指定次数的对象。                               |
+
+**解决方式**
+
+1. 确定具有慢速或块请求的OSD是否共享一个共同的硬件，例如磁盘驱动器，主机，机架或网络交换机。
+
+2. 如果OSD共享磁盘：
+
+    a. 使用该 `smartmontools` 工具检查磁盘或日志的运行状况以确定磁盘上的任何错误。
+
+    注意：该 `smartmontools` 实用程序包含在 `smartmontools` 包中。
+
+    b. 使用该 `iostat` 命令获取 `%iowai`，OSD 磁盘上的 I/O 等待报告(`%iowai`) 可以确定磁盘是否处于高负载状态。
+
+   注意：该 `iostat工具` 包含在 `sysstat` 包中。
+
+3. 如果 OSD 在同一主机上：
+
+    a. 检查 RAM 和 CPU 利用率
+    b. 使用该 `netstat` 实用程序可以查看网络接口控制器（NIC）上的网络统计信息，并解决任何网络问题。
+
+4. 如果 OSD 在同一机架，请检查机架的网络交换机。例如，如果使用巨型帧，请验证路径中的 NIC 是否设置了巨型帧。
+
+##### Stopping and Starting Rebalancing
+
+当 OSD 失败或人为停止时，CRUSH 算法会自动启动重新平衡过程，以在剩余的 OSD 中重新分配数据。
+
+重新平衡可能需要些时间和资源，因此，请在故障排除或维护 OSD 期间停止数据重新平衡。为此，请在停止 OSD 之前设置 noout 标志：
+
+```sh
+# ceph osd set noout
+```
+
+完成故障排除或维护后，取消设置 `noout` 标志以开始重新平衡：
+
+```sh
+# ceph osd unset noout
+```
+
+##### 安装 OSD 数据分区
+
+如果未正确配置 OSD 数据分区，则 `ceph-osd` 守护程序无法启动。如果发现未按预期配置分区，请按照以下的步骤进行安装。
+
+**过程：安装 OSD 数据分区**
+
+1. 挂载分区：
+
+```sh
+# mount -o noatime <partition> /var/lib/ceph/osd/<cluster-name>-<osd-number>
+```
+
+替换 `<partition>` 为专用于 OSD 数据的 OSD 驱动器上的分区路径。指定集群名称和 OSD 编号，例如：# mount -o noatime/dev/sdd1 /var/lib/ceph/osd/ceph-0
+
+2. 尝试启动失败的 `ceph-osd` 守护程序：
+
+```sh
+# systemctl start ceph-osd@<OSD-number>
+```
+
+替换为 `<OSD-number>` OSD 的 ID，例如：
+
+```sh
+# systemctl start ceph-osd@0
+```
+
+##### 更换 OSD 驱动器
+
+Ceph 专为容错而设计，这意味着它可以在 `degraded` 不丢失数据的状态下运行。因此，即使数据存储驱动器发生故障，Ceph 也可以运行。在驱动器出现故障的情况下，`degraded` 状态意味着存储在其他OSD上的额外数据副本将自动回填到集群中的可用 OSD。但是，如果发生这种情况，请更换发生故障的OSD驱动器并手动重新创建 OSD。
+
+当驱动器发生故障时，Ceph 会将 OSD 报告为 `down`：
+
+```txt
+HEALTH_WARN 1/3 in osds are down
+osd.0 is down since epoch 23, last address 192.168.106.220:6800/11080
+```
+
+**注意**
+
+Ceph将OSD标记`down`可能由网络故障或者权限等原因造成的。
+
+现代服务器通常使用热插拔驱动器进行部署，因此您可以在不关闭节点的情况下拉出故障驱动器并将其替换为新驱动器。整个过程包括以下步骤：
+
+1. 从Ceph集群中删除OSD。
+2. 更换驱动器。
+3. 将OSD添加到集群。
+
+**在开始之前**
+
+1. 确定 Down 掉的 OSD:
+
+```sh
+# ceph osd tree | grep -i down
+ID WEIGHT  TYPE NAME      UP/DOWN REWEIGHT PRIMARY-AFFINITY
+0 0.00999         osd.0     down  1.00000          1.00000
+```
+
+2. 使用如下命令，确认 OSD 服务已经停止:
+
+```sh
+# systemctl status ceph-osd@<OSD-number>
+```
+
+替换 `<OSD-number>` 为标记为的 OSD 的 ID `down`，例如：
+
+```sh
+# systemctl status ceph-osd@osd.0
+...
+Active: inactive (dead)
+```
+
+**过程: 从Ceph集群中删除OSD**
+
+1. 标记 OSD 为 out:
+
+```sh
+# ceph osd out osd.<OSD-number>
+```
+
+替换 `<OSD-number>` 为标记为的 OSD 的 ID `down`，例如：
+
+```sh
+# ceph osd out osd.0
+
+marked out osd.0.
+```
+
+注意：如果 OSD 是`down`，Ceph 在没有从 OSD 接收任何心跳包的 900 秒后自动将其标记 为out。发生  这种情况时，其他带有失败 OSD 数据副本的 OSD 开始回填，以确保集群中存在所需的副本数量。当集群回填时，集群将处于某种 `degraded` 状态。
+
+2. 确保失败的 OSD 正在回填。输出将包括类似于以下内容的信息：
+
+```sh
+# ceph -w | grep backfill
+```
+
+```txt
+2017-06-02 04:48:03.403872 mon.0 \[INF\] pgmap v10293282: 431 pgs: 1 active+undersized+degraded+remapped+backfilling, 28 active+undersized+degraded, 49 active+undersized+degraded+remapped+wait_backfill, 59 stale+active+clean, 294 active+clean; 72347 MB data, 101302 MB used, 1624 GB / 1722 GB avail; 227 kB/s rd, 1358 B/s wr, 12 op/s; 10626/35917 objects degraded (29.585%); 6757/35917 objects misplaced (18.813%); 63500 kB/s, 15 objects/s recovering
+
+2017-06-02 04:48:04.414397 mon.0 \[INF\] pgmap v10293283: 431 pgs: 2 active+undersized+degraded+remapped+backfilling, 75 active+undersized+degraded+remapped+wait_backfill, 59 stale+active+clean, 295 active+clean; 72347 MB data, 101398 MB used, 1623 GB / 1722 GB avail; 969 kB/s rd, 6778 B/s wr, 32 op/s; 10626/35917 objects degraded (29.585%); 10580/35917 objects misplaced (29.457%); 125 MB/s, 31 objects/s recovering
+
+2017-06-02 04:48:00.380063 osd.1 \[INF\] 0.6f starting backfill to osd.0 from (0'0,0'0\] MAX to 2521'166639
+
+2017-06-02 04:48:00.380139 osd.1 \[INF\] 0.48 starting backfill to osd.0 from (0'0,0'0\] MAX to 2513'43079
+
+2017-06-02 04:48:00.380260 osd.1 \[INF\] 0.d starting backfill to osd.0 from (0'0,0'0\] MAX to 2513'136847
+
+2017-06-02 04:48:00.380849 osd.1 \[INF\] 0.71 starting backfill to osd.0 from (0'0,0'0\] MAX to 2331'28496
+
+2017-06-02 04:48:00.381027 osd.1 \[INF\] 0.51 starting backfill to osd.0 from (0'0,0'0\] MAX to 2513'87544
+```
+
+3. 从CRUSH MAP 中删除 OSD：
+
+```sh
+# ceph osd crush remove osd.<OSD-number>
+```
+
+替换 `<OSD-number>` 为标记为的 OSD 的 ID  `down`，例如：
+
+```sh
+# ceph osd crush remove osd.0
+removed item id 0 name 'osd.0' from crush map
+```
+
+4. 删除与 OSD 相关的身份验证密钥：
+
+```sh
+# ceph auth del osd.<OSD-number>
+```
+
+替换 `<OSD-number>` 为标记为的 OSD 的 ID `down`，例如：
+
+```sh
+# ceph auth del osd.0
+updated
+```
+
+5. 从 Ceph 存储集群中删除 OSD：
+
+```sh
+# ceph osd rm osd.<OSD-number>
+```
+
+替换 `<OSD-number>` 为标记为的 OSD 的 ID `down`，例如：
+
+```sh
+# ceph osd rm osd.0
+removed osd.0
+```
+
+如果已成功删除 OSD，则以下命令的输出中不存在对应的 OSD：
+
+```sh
+# ceph osd tree
+```
+
+6. 卸载发生故障的驱动器：
+
+```sh
+# umount /var/lib/ceph/osd/<cluster-name>-<OSD-number>
+```
+
+指定集群的名称和 OSD 的 ID，例如：
+
+```sh
+# umount /var/lib/ceph/osd/ceph-0/
+```
+
+如果已成功卸载驱动器，则它不会出现在以下命令的输出中：
+
+```sh
+# df -h
+```
+
+**过程：更换物理驱动器**
+
+1. 有关更换物理驱动器的详细信息。
+
+   a. 如果您使用 Ansible 部署集群，请 `ceph-ansible` 再次从 Ceph 管理服务器运行该手册：
+
+    ```sh
+     # ansible-playbook /usr/share/ceph-ansible site.yml
+    ```
+
+   b. 如果手动添加 OSD，请确认每一步完整。
+
+2. 当驱动器出现在 /dev/ 目录下时，请记下驱动路径。
+
+3. 如果要手动添加 OSD, 请找到 OSD 驱动器并格式化磁盘。
+
+
+
+**过程: 将 OSD 添加到 Ceph 集群**
+
+1. 再次添加 OSD.
+
+    a. 如果您使用 Ansible 部署集群，请 `ceph-ansible` 再次从 Ceph 管理服务器运行该手册：
+
+    ```sh
+     # ansible-playbook /usr/share/ceph-ansible site.yml
+    ```
+
+    b. 如果手动添加 OSD，请确认每一步完整。
+
+
+2.确保 CRUSH 层次结构准确：
+
+```sh
+# ceph osd tree
+```
+
+3.如果您对 CRUSH 层次结构中 OSD 的位置不满意，请将 OSD 移动到所需位置：
+
+```sh
+ceph osd crush move <bucket-to-move> <bucket-type>=<parent-bucket>
+```
+
+例如，要将位于 `sdd:row1` 根桶的桶移动到根桶：
+
+```sh
+# ceph osd crush move ssd:row1 root=ssd:root
+```
+
+##### Increasing the PID count
+
+
+如果你的节点包含超过12个 Ceph OSD，则默认的最大线程数（PID 数目）可能不足，尤其是在恢复期间。因此，一些 `ceph-osd` 守护进程可能会终止并无法再次启动。如果发生这种情况，请增加允许的最大线程数。
+
+临时增加数量：
+
+```sh
+# sysctl -w kernel.pid.max=4194303
+```
+
+永久增加数量，请 `/etc/sysctl.conf` 按如下方式添加配置：
+
+```txt
+kernel.pid.max = 4194303
+```
+
+##### 从完整集群中删除数据
+
+Ceph 自动阻止对达到 `mon_osd_full_ratio` 参数指定容量的 OSD 的任何 I/O 操作，并返回 `full osds` 错误消息。
+
+此过程说明如何删除不必要的数据以修复此错误。
+注意：该 `mon_osd_full_ratio` 参数是在创建集群时设置 full_ratio 参数值。你不能改变 `mon_osd_full_ratio` 之后的值。要暂时增加 `full_ratio` 值，请增加`pg_full_ratio`。
+
+**过程：从完整集群中删除数据**
+
+1. 确定当前值 `full_ratio`，默认情况下设置为 `0.95`：
+
+```sh
+# ceph pg dump | grep -i full
+full_ratio 0.95
+```
+
+2. 临时增加的价值 `pg_full_ratio` 来 `0.97`：
+
+```sh
+# ceph pg set_full_ratio 0.97
+```
+
+注意：建议不要将 `pg_full_ratio` 值设置为高于 0.97。将此参数设置为更高的值会使恢复过程更加困难。因此，您可能根本无法恢复完整的 OSD。
+
+3.验证您是否已成功将参数设置为`0.97`：
+
+```sh
+# ceph pg dump | grep -i full
+full_ratio 0.97
+```
+
+4. 监控集群状态：
+
+```sh
+# ceph -w
+```
+
+只要集群从状态更改 `full` 为 `nearfull`，就删除任何不必要的数据。
+
+5. 将值设置 `full ratio` 为 `0.95`：
+
+```sh
+# ceph pg set_full_ratio 0.95
+```
+
+6. 验证您是否已成功将参数设置为 `0.95`：
+
+```sh
+# ceph pg dump | grep -i full
+full_ratio 0.95
+```
 
 #### PG（归置组）故障排查
 
