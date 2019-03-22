@@ -2,6 +2,7 @@
 A collection of documentation
 
 - /ses-devops: SES/Ceph 运维文档，包括 odt, pdf, md 格式
+  - 请以 odt/pdf 格式内容为准；md 格式文件更新较慢
 
 - /ceph-dashbard-api: 关于 ceph dashboard 的各种格式 api 文件
   - ceph-dashboard-swagger.json
