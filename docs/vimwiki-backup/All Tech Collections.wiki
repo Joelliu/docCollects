@@ -29,6 +29,8 @@
 * keepassxc, keeweb
 * radare2
 * fail2ban
+* vault (hashicorp)
+* termux (android) :xxx:
 
 
 == Articles ==

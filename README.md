@@ -15,7 +15,9 @@ A collection of documentation
     - 使用 postman 收集的 ceph dashboard api
   - /stoplight-backup: 网站备份文件
 
-- /vimwiki-backup: vimwiki 备份
+- /vimwiki-backup: vimwiki backup
+
+- installed.md: important installed apps (backup)
 
 - /suse-intern-tutorials: 实习中的一些文档翻译
 
