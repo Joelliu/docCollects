@@ -2,8 +2,7 @@
 
 ## MY
 
-- shortcut for open terminal
-- vimium, ublock, OneTab, SwitchyOmega, keepassxc for firefox
+- vimium, ublock, OneTab, SwitchyOmega for firefox
 - IBM-Plex-Fonts
 - [additional package repositories](https://en.opensuse.org/Addtional_package_repositories)
 
@@ -19,30 +18,47 @@
     - gruvbox colorscheme
 - t script: task tool (stevelosh)
 - ag (the silver search), ripgrep
+- fd (alternative to 'find')(zypper install)
 - rsync
 - synergy-core (compiled)
 - aria2
 - wmctrl, xdotool, devilspie
 - pandoc
-- *vimwiki*
+- **vimwiki**
 - miniserve
 - imagemagick
-- radare2
+- radare2, cutter (appimage)
+- pdftk (not installed for reason of size)
+- peek: gif recorder (package)
+- Eisvogel (latex template)
 
 ### Software
 
 - git
 - docker
+    - instantbox, kroki, seafile-docs, trilium, stringer
 - wireshark, tcpdump
 - virt-manager, kvm
-- shadowsocks
+- shadowsocks(appimage)
 - TexStudio
 - Visual Studio Code
 - HexChat
 - deja-dup backup
 - flameshot
 - keepassxc
-- mindforger (self build)
+- [gnome-pomodoro](http://gnomepomodoro.org/): relogin after install
+- seafile-client (self build | package), seafile-docs(docker)
+- Editor: 
+    - self build: mindforger, moeditor, zettlr(+ rpm package)
+    - marktext(appimage), fromscratch(appimage)
+    - cherrytree, zim
+- zotero (package): bibliograph management
+- snapper
+    - spotify, heroku CLI, 
+- Geary
+- Gnome keyring/Seahorse
+- Anki
+
 
 ### Language
 
@@ -52,19 +68,24 @@
     - carbon-now-cli
     - elm
     - tldr (man pages)
+    - yarn
+- ruby, rbenv
+    - gollum
 - python: virtualenv -> django
+    - django, mpsyt(mps-youtube), httpie, MyQR, pyzotero, httprunner
 - rust
 - SBCL - Common LISP
 
 ### Others
 
-- vnote
+- vnote (appimage)
 - tigerVNC
 - Remmina
 - VLC
 - gPodder
 - chrome
 - telegram
+- nteract(appimage)
 
 
 ## DEBIAN9 VIRTUAL MACHINE
@@ -87,3 +108,8 @@
 - vagrant
 - docker
 - radare2
+- mindforger
+- docear
+- jenkins
+- autokey
+- jabref
